@@ -51,7 +51,7 @@ jobs:
     name: Deploy To NuGet & GitHub
     runs-on: windows-2022
     needs: [ package ]
-    if: ${{ inputs.deploy }}
+    #if: ${{ inputs.deploy }}
     defaults:
       run:
         shell: pwsh
@@ -82,4 +82,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Deploy NuGet package
+        if: ${{ inputs.deploy }}
         run: dotnet nuget push ${{ env.PackageName }} --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
