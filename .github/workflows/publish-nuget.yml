@@ -78,7 +78,7 @@ jobs:
       - name: Verify Signed Package
         run: NuGetKeyVaultSignTool verify ${{ env.PackageName }}
       - name: Add to Release
-        run: gh release upload ${{ inputs.version }} ${{ env.PackageName }}
+        run: gh release upload ${{ inputs.version }} ${{ env.PackageName }} --repo NF-Software-Inc/Easy-Logger
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Deploy NuGet package
