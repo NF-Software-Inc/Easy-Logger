@@ -56,5 +56,5 @@ jobs:
     with:
       build: ${{ needs.prepare.outputs.Build }}
       version: ${{ needs.prepare.outputs.Version }}
-      deploy: ${{ needs.prepare.outputs.Deploy }}
+      deploy: ${{ needs.prepare.outputs.Deploy == 'true' }}
     secrets: inherit
