@@ -52,6 +52,8 @@ jobs:
   nuget:
     needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'NuGet') }}
+    permissions:
+      contents: write
     uses: ./.github/workflows/publish-nuget.yml
     with:
       build: ${{ needs.prepare.outputs.Build }}
