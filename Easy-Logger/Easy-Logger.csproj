@@ -7,9 +7,9 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<Version>2.0.14</Version>
-		<AssemblyVersion>2.0.14.0</AssemblyVersion>
-		<FileVersion>2.0.14.0</FileVersion>
+		<Version>2.0.15</Version>
+		<AssemblyVersion>2.0.15.0</AssemblyVersion>
+		<FileVersion>2.0.15.0</FileVersion>
 		<PackageId>Easy.Log.Writer</PackageId>
 		<PackageTags>logger logging log text json memory console utility blazor server webassembly</PackageTags>
 		<RepositoryUrl>https://github.com/thirstyape/Easy-Logger</RepositoryUrl>
@@ -19,44 +19,20 @@
 			If the default configuration is sufficient for your needs the library can be used out of the box without further setup. However, if you have specific logging needs you can alter the library configuration settings and also provide custom logging methods.
 		</Description>
 		<PackageReleaseNotes>
-			2.0.14
-			Add new constructors to logging providers to enable usage without DI
-
-			2.0.13
-			Update requirement for System.Text.Json to patch vulnerability
-
-			2.0.12
-			Update requirement for System.Text.Json to patch vulnerability
-
-			2.0.11
-			Add trailing comma in dirty JSON mode
-
-			2.0.10
-			Add dirty JSON mode
-
-			2.0.9
-			Update publishing to include source link, deterministic, and compiler flags
-
-			2.0.6
-			Minor performance improvement
-
-			2.0.5
-			Update NuGet requirements to enable use with .NET 7 and .NET 8
-
-			2.0.4
-			Fix issue causing console logger to fail in WebAssembly projects
-
-			2.0.3
-			Update package references to use floating versions
-
-			2.0.2
-			Update project file to generate XML documentation in NuGet package
-
-			2.0.1
-			Bug fixes
-
-			2.0.0
-			Add logger providers, Add Memory Logger, Add Console Logger, Remove SQL logger, Remove obsolete interfaces, Update loggers to implement ILogger
+			2.0.15 Remove constraint blocking .NET 9.0 and upward versions of Microsoft.Extensions.Logging
+			2.0.14 Add new constructors to logging providers to enable usage without DI
+			2.0.13 Update requirement for System.Text.Json to patch vulnerability
+			2.0.12 Update requirement for System.Text.Json to patch vulnerability
+			2.0.11 Add trailing comma in dirty JSON mode
+			2.0.10 Add dirty JSON mode
+			2.0.9 Update publishing to include source link, deterministic, and compiler flags
+			2.0.6 Minor performance improvement
+			2.0.5 Update NuGet requirements to enable use with .NET 7 and .NET 8
+			2.0.4 Fix issue causing console logger to fail in WebAssembly projects
+			2.0.3 Update package references to use floating versions
+			2.0.2 Update project file to generate XML documentation in NuGet package
+			2.0.1 Bug fixes
+			2.0.0 Add logger providers, Add Memory Logger, Add Console Logger, Remove SQL logger, Remove obsolete interfaces, Update loggers to implement ILogger
 
 			1.0.4 Update NuGet packages to address security vulnerability in System.Data.SqlClient
 			1.0.3 Add XML file to output to allow Intellisense to work with package, Update dependent NuGet packages
@@ -79,8 +55,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="[6.0.0,9)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="[6.0.0,9)" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="6.0.0" />
 		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
 
