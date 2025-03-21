@@ -52,6 +52,8 @@ jobs:
     runs-on: windows-2022
     needs: [ package ]
     #if: ${{ inputs.deploy }}
+    permissions:
+      contents: write
     defaults:
       run:
         shell: pwsh
