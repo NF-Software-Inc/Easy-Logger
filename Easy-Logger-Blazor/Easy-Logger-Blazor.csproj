@@ -8,35 +8,26 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<Version>2.1.13</Version>
-		<AssemblyVersion>2.1.13.0</AssemblyVersion>
-		<FileVersion>2.1.13.0</FileVersion>
+		<Version>2.1.16</Version>
+		<AssemblyVersion>2.1.16.0</AssemblyVersion>
+		<FileVersion>2.1.16.0</FileVersion>
 		<PackageId>Easy.Log.Writer.Blazor</PackageId>
 		<PackageTags>logger logging log text json memory console blazor utility</PackageTags>
-		<RepositoryUrl>https://github.com/thirstyape/Easy-Logger</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/thirstyape/Easy-Logger</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/NF-Software-Inc/Easy-Logger</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/NF-Software-Inc/Easy-Logger</PackageProjectUrl>
 		<Description>
 			This project was created to provide an extension to the Easy.Log.Writer package that includes a Blazor logging endpoint.
 			The base package can also output to the web console, but does not have advanced features such as custom log color or formats.
 		</Description>
 		<PackageReleaseNotes>
-			2.1.13
-			Update requirement for System.Text.Json to patch vulnerability
-
-			2.1.12
-			Drop support for .NET 7.0 and Update requirement for System.Text.Json to patch vulnerability
-
-			2.0.9
-			Update publishing to include source link, deterministic, and compiler flags
-
-			2.0.8
-			Update NuGet dependency to patch transitive security vulnerability
-
-			2.0.7
-			Fix for CSS not applying
-
-			2.0.6
-			Initial release
+			2.1.16 Sync verions, cascading changes from base library
+			2.1.13 Update requirement for System.Text.Json to patch vulnerability
+			2.1.12 Drop support for .NET 7.0 and Update requirement for System.Text.Json to patch vulnerability
+			
+			2.0.9 Update publishing to include source link, deterministic, and compiler flags
+			2.0.8 Update NuGet dependency to patch transitive security vulnerability
+			2.0.7 Fix for CSS not applying
+			2.0.6 Initial release
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

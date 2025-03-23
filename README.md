@@ -1,7 +1,9 @@
 # Easy Logger
 
-[![MIT](https://img.shields.io/github/license/thirstyape/Easy-Logger)](https://github.com/thirstyape/Easy-Logger/blob/master/LICENSE)
+[![MIT](https://img.shields.io/github/license/NF-Software-Inc/Easy-Logger)](https://github.com/NF-Software-Inc/Easy-Logger/blob/master/LICENSE)
 [![NuGet](https://img.shields.io/nuget/v/Easy.Log.Writer.svg)](https://www.nuget.org/packages/Easy.Log.Writer/)
+[![Build](https://img.shields.io/github/actions/workflow/status/NF-Software-Inc/Easy-Logger/build.yml)](https://github.com/NF-Software-Inc/Easy-Logger/actions/workflows/build.yml)
+[![Publish](https://img.shields.io/github/actions/workflow/status/NF-Software-Inc/Easy-Logger/publish.yml?label=publish)](https://github.com/NF-Software-Inc/Easy-Logger/actions/workflows/publish.yml)
 
 This project was created to provide an easy to use and configurable logging library. If the default configuration is sufficient for your needs the library can be used out of the box without further setup. However, if you have specific logging needs you can alter the library configuration settings and also provide custom logging methods.
 
@@ -17,12 +19,6 @@ The default implementation is capable of:
 - Adding templated filenames to text-based logs (ex. /logs/2020-05-01_My.Namespace_Log_150059.txt)
 - Being used as an ILogger implementation for ASP.NET and other API type applications
 - Parsing and searching JSON log files (requires downloading and installing the Easy Logger Parser app)
-
-## Breaking Changes V2.0
-
-**Notice!**
-
-If you have been using V1 based editions of this library, please use the Version 1.X branch to ensure you do not encounter breaking changes. It is no longer being developed, but if there are security concerns they will be addressed.
 
 The V2 edition has been released to provide a more standards based logging system. The loggers and providers are now using the default `ILogger` and `ILoggerProvider` implementations. It is recommended to register your required loggers using the providers and then using dependency injection to get `ILogger` instances as required. You can still directly create loggers if required.
 
