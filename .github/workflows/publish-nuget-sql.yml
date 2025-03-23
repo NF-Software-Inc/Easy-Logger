@@ -18,7 +18,7 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   GitHubUsername: NF-Software-Inc
-  PackageName: ${{ github.workspace }}\Temp-NuGet\Easy.Log.Writer.Sql.${{ inputs.version }}.nupkg
+  PackageName: ${{ github.workspace }}\Temp-NuGet-SQL\Easy.Log.Writer.Sql.${{ inputs.version }}.nupkg
   PublishVersion: ${{ inputs.version }}.${{ inputs.build }}
   TempDirectory: ${{ github.workspace }}/Temp-NuGet-SQL
 
