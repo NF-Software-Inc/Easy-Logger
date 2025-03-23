@@ -6,10 +6,10 @@
 
     <MainPackage
         Name="D1B106D6-AADE-4BEC-BF43-0FEC2E6EF991"
-        Publisher="CN=NF Software Inc, O=NF Software Inc, S=Ontario, C=CA, OID.2.5.4.15=Private Organization, OID.1.3.6.1.4.1.311.60.2.1.2=Ontario, OID.1.3.6.1.4.1.311.60.2.1.3=CA, SERIALNUMBER=1000368489"
-        Version="2.0.13.0"
+        Publisher="CN=NF Software Inc, O=NF Software Inc, L=New Hamburg, S=Ontario, C=CA, OID.1.3.6.1.4.1.311.60.2.1.2=Ontario, OID.1.3.6.1.4.1.311.60.2.1.3=CA, SERIALNUMBER=1000368489, OID.2.5.4.15=Private Organization"
+        Version="2.1.16.0"
         ProcessorArchitecture="x64"
-        Uri="https://github.com/NF-Software-Inc/Easy-Logger/releases/download/2.0.13/Easy-Logger-Parser_2.0.13.0_x64.msix" />
+        Uri="https://github.com/NF-Software-Inc/Easy-Logger/releases/download/2.1.16/Easy-Logger-Parser_2.1.16.0_x64.msix" />
 
     <UpdateSettings>
         <OnLaunch HoursBetweenUpdateChecks="3" ShowPrompt="false" />
