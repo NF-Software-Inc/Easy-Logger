@@ -8,9 +8,9 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<Version>2.1.16</Version>
-		<AssemblyVersion>2.1.16.0</AssemblyVersion>
-		<FileVersion>2.1.16.0</FileVersion>
+		<Version>2.1.17</Version>
+		<AssemblyVersion>2.1.17.0</AssemblyVersion>
+		<FileVersion>2.1.17.0</FileVersion>
 		<PackageId>Easy.Log.Writer.Blazor</PackageId>
 		<PackageTags>logger logging log text json memory console blazor utility</PackageTags>
 		<RepositoryUrl>https://github.com/NF-Software-Inc/Easy-Logger</RepositoryUrl>

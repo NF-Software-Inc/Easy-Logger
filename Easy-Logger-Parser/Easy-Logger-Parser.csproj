@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
+		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>$(MSBuildProjectName.Replace("-", "_"))</RootNamespace>
 		<UseMaui>true</UseMaui>
@@ -13,28 +13,34 @@
 		<Company>NF Software Inc.</Company>
 		<Product>Easy Logger Parser</Product>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<AssemblyVersion>2.0.13.0</AssemblyVersion>
-		<FileVersion>2.0.13.0</FileVersion>
-		<Version>2.0.13</Version>
-		<MauiVersion>8.0.100</MauiVersion>
+		<AssemblyVersion>2.1.17.0</AssemblyVersion>
+		<FileVersion>2.1.17.0</FileVersion>
+		<Version>2.1.17</Version>
+		<MauiVersion>9.0.50</MauiVersion>
 
 		<!-- Display name -->
 		<ApplicationTitle>Easy Logger Parser</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.nf_software_inc.easy_logger_parser</ApplicationId>
+		<ApplicationId>com.nfsoftwareinc.easyloggerparser</ApplicationId>
 		<ApplicationIdGuid>D1B106D6-AADE-4BEC-BF43-0FEC2E6EF991</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>2.0.13</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion>2.1.17</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
 
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<DefaultLanguage>en</DefaultLanguage>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+		<AndroidUseAapt2>True</AndroidUseAapt2>
+		<AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
 	</PropertyGroup>
 
 	<ItemGroup>
