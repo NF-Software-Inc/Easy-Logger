@@ -28,9 +28,21 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - name: Install dependencies
+    - name: Install dependencies main
       run: dotnet restore
       working-directory: ./Easy-Logger
-    - name: Build
+    - name: Build main
       run: dotnet build --configuration Release
       working-directory: ./Easy-Logger
+    - name: Install dependencies Blazor
+      run: dotnet restore
+      working-directory: ./Easy-Logger-Blazor
+    - name: Build Blazor
+      run: dotnet build --configuration Release
+      working-directory: ./Easy-Logger-Blazor
+    - name: Install dependencies SQL
+      run: dotnet restore
+      working-directory: ./Easy-Logger-Sql
+    - name: Build SQL
+      run: dotnet build --configuration Release
+      working-directory: ./Easy-Logger-Sql
