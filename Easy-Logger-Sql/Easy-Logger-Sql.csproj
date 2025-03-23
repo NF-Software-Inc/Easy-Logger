@@ -7,40 +7,27 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<Version>2.0.14</Version>
-		<AssemblyVersion>2.0.14.0</AssemblyVersion>
-		<FileVersion>2.0.14.0</FileVersion>
+		<Version>2.1.16</Version>
+		<AssemblyVersion>2.1.16.0</AssemblyVersion>
+		<FileVersion>2.1.16.0</FileVersion>
 		<PackageId>Easy.Log.Writer.Sql</PackageId>
 		<PackageTags>logger logging log text json memory console sql utility</PackageTags>
-		<RepositoryUrl>https://github.com/thirstyape/Easy-Logger</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/thirstyape/Easy-Logger</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/NF-Software-Inc/Easy-Logger</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/NF-Software-Inc/Easy-Logger</PackageProjectUrl>
 		<Description>
 			This project was created to provide an extension to the Easy.Log.Writer package that includes a SQL Server logging endpoint.
 		</Description>
 		<PackageReleaseNotes>
-			2.0.14
-			Add new constructors to logging providers to enable usage without DI
+			2.1.16 Sync verions, cascading changes from base library
 
-			2.0.13
-			Update requirement for Microsoft.Data.SqlClient abd System.Text.Json to patch vulnerabilies
-
-			2.0.12
-			Update requirement for System.Text.Json to patch vulnerability
-
-			2.0.9
-			Update publishing to include source link, deterministic, and compiler flags
-
-			2.0.8
-			Update NuGet dependency to patch transitive security vulnerability
-
-			2.0.7
-			Update SQL dependency to patch security issue
-
-			2.0.6
-			Update with changes from Easy.Log.Writer
-
-			2.0.3
-			Initial release
+			2.0.14 Add new constructors to logging providers to enable usage without DI
+			2.0.13 Update requirement for Microsoft.Data.SqlClient abd System.Text.Json to patch vulnerabilies
+			2.0.12 Update requirement for System.Text.Json to patch vulnerability
+			2.0.9 Update publishing to include source link, deterministic, and compiler flags
+			2.0.8 Update NuGet dependency to patch transitive security vulnerability
+			2.0.7 Update SQL dependency to patch security issue
+			2.0.6 Update with changes from Easy.Log.Writer
+			2.0.3 Initial release
 		</PackageReleaseNotes>
 
 	</PropertyGroup>

@@ -60,3 +60,25 @@ jobs:
       version: ${{ needs.prepare.outputs.Version }}
       deploy: ${{ needs.prepare.outputs.Deploy == 'true' }}
     secrets: inherit
+  nuget-blazor:
+    needs: [ prepare, nuget ]
+    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'NuGet') }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-nuget-blazor.yml
+    with:
+      build: ${{ needs.prepare.outputs.Build }}
+      version: ${{ needs.prepare.outputs.Version }}
+      deploy: ${{ needs.prepare.outputs.Deploy == 'true' }}
+    secrets: inherit
+  nuget-sql:
+    needs: [ prepare, nuget ]
+    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'NuGet') }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-nuget-sql.yml
+    with:
+      build: ${{ needs.prepare.outputs.Build }}
+      version: ${{ needs.prepare.outputs.Version }}
+      deploy: ${{ needs.prepare.outputs.Deploy == 'true' }}
+    secrets: inherit
