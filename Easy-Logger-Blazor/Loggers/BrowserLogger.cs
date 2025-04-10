@@ -28,7 +28,7 @@ public class BrowserLogger : ILogger
 	/// <param name="jsRuntime">A JS Runtime object to record logs</param>
 	/// <param name="logLevels">A function to return the log levels to record log entries for</param>
 	/// <param name="ignoredMessages">Any log messages containing these strings will not be recorded</param>
-	public BrowserLogger(string source, IJSRuntime jsRuntime, Func<LogLevel[]> logLevels, List<string> ignoredMessages) 
+	public BrowserLogger(string source, IJSRuntime jsRuntime, Func<LogLevel[]> logLevels, List<string> ignoredMessages)
 	{
 		Configuration = () => new BrowserLoggerConfiguration()
 		{

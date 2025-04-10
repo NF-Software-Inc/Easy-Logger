@@ -22,7 +22,7 @@ public class BrowserLoggerProvider : ILoggerProvider
 	private readonly ConcurrentDictionary<string, ILogger> Loggers = new(StringComparer.OrdinalIgnoreCase);
 	private BrowserLoggerConfiguration Configuration;
 	private readonly IServiceProvider Provider;
-	private readonly IDisposable OnChangeToken;
+	private readonly IDisposable? OnChangeToken;
 
 	/// <param name="configuration">The configuration to use with created loggers</param>
 	/// <param name="provider">A service provider to create JS Runtime objects</param>
@@ -51,7 +51,9 @@ public class BrowserLoggerProvider : ILoggerProvider
 	public void Dispose()
 	{
 		Loggers.Clear();
-		OnChangeToken.Dispose();
+		OnChangeToken?.Dispose();
+
+		GC.SuppressFinalize(this);
 	}
 }
 
@@ -61,10 +63,10 @@ public class BrowserLoggerProvider : ILoggerProvider
 public class BrowserLoggerConfiguration : ILoggerConfiguration
 {
 	/// <inheritdoc/>
-	public LogLevel[] LogLevels { get; set; } = new[] { LogLevel.Trace, LogLevel.Debug, LogLevel.Information, LogLevel.Warning, LogLevel.Error, LogLevel.Critical };
+	public LogLevel[] LogLevels { get; set; } = [LogLevel.Trace, LogLevel.Debug, LogLevel.Information, LogLevel.Warning, LogLevel.Error, LogLevel.Critical];
 
 	/// <inheritdoc/>
-	public List<string> IgnoredMessages { get; set; } = new List<string>();
+	public List<string> IgnoredMessages { get; set; } = [];
 
 	/// <inheritdoc/>
 	public Func<ILoggerEntry, string>? Formatter { get; set; } = entry =>
@@ -77,12 +79,12 @@ public class BrowserLoggerConfiguration : ILoggerConfiguration
 	/// </summary>
 	/// <remarks>
 	/// You must set <see cref="Formatter"/> for this to work. For each item in the list, you will need to add a '%c' to use it in your messages. Example:
-	/// 
+	///
 	/// <code>
 	/// Formatter = entry => $"%c{entry.Source} %c{entry.Message}"
 	/// CssStyles = new() { "color:#0ff", "color:#000; font-size:1.5rem" }
 	/// </code>
-	/// 
+	///
 	/// <see href="https://developer.mozilla.org/en-US/docs/Web/API/console#styling_console_output">Documentation</see>
 	/// </remarks>
 	public List<string>? CssStyles { get; set; }
