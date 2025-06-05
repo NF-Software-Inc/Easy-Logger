@@ -82,6 +82,7 @@ namespace Easy_Logger.Loggers
 
                 Console.Write(current.Formatter.Invoke(entry));
             }
+            Console.ForegroundColor = ConsoleColor.Gray; // default color according to docs
         }
     }
 }
