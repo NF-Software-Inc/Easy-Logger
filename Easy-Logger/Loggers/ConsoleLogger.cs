@@ -74,6 +74,7 @@ namespace Easy_Logger.Loggers
                     Console.ForegroundColor = ConsoleColor.White;
 
                 Console.WriteLine(entry.Message);
+                Console.ForegroundColor = ConsoleColor.White;
             }
             else
             {
@@ -81,8 +82,8 @@ namespace Easy_Logger.Loggers
                     Console.ForegroundColor = current.LogLevelToColorMap.ContainsKey(entry.Severity) ? current.LogLevelToColorMap[entry.Severity] : ConsoleColor.White;
 
                 Console.Write(current.Formatter.Invoke(entry));
+                Console.ForegroundColor = ConsoleColor.White;
             }
-            Console.ForegroundColor = ConsoleColor.Gray; // default color according to docs
         }
     }
 }
