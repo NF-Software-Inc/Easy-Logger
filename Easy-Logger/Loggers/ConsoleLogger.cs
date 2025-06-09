@@ -71,10 +71,9 @@ namespace Easy_Logger.Loggers
                 Console.WriteLine($"{entry.Timestamp:yyyy-MM-dd HH:mm:ss.fff}; Severity={entry.Severity}; Source={entry.Source}");
 
                 if (current.UseColoredMessages)
-                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Gray;
 
                 Console.WriteLine(entry.Message);
-                Console.ForegroundColor = ConsoleColor.White;
             }
             else
             {
@@ -82,7 +81,7 @@ namespace Easy_Logger.Loggers
                     Console.ForegroundColor = current.LogLevelToColorMap.ContainsKey(entry.Severity) ? current.LogLevelToColorMap[entry.Severity] : ConsoleColor.White;
 
                 Console.Write(current.Formatter.Invoke(entry));
-                Console.ForegroundColor = ConsoleColor.White;
+                Console.ForegroundColor = ConsoleColor.Gray;
             }
         }
     }
