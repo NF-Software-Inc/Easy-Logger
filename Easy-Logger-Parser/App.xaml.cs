@@ -5,7 +5,11 @@ public partial class App : Application
 	public App()
 	{
 		InitializeComponent();
+	}
 
-		MainPage = new MainPage();
+	/// <inheritdoc />
+	protected override Window CreateWindow(IActivationState? activationState)
+	{
+		return new Window(new MainPage()) { Title = "Easy Logger Parser" };
 	}
 }
