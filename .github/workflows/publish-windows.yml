@@ -38,9 +38,8 @@ jobs:
         dotnet-version: |
           9.0.x
           8.0.x
-          6.0.x
     - name: Install MAUI
-      run: dotnet workload install maui-windows
+      run: dotnet workload install maui
       working-directory: .\Easy-Logger-Parser
     - run: New-Item -Type Directory -Path ${{ env.TempDirectory }}
     - name: Set Environment Variables
