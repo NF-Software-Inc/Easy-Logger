@@ -8,9 +8,9 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<Version>2.2.0</Version>
-		<AssemblyVersion>2.2.0</AssemblyVersion>
-		<FileVersion>2.2.0</FileVersion>
+		<Version>2.2.1</Version>
+		<AssemblyVersion>2.2.1</AssemblyVersion>
+		<FileVersion>2.2.1</FileVersion>
 		<PackageId>Easy.Log.Writer.Blazor</PackageId>
 		<PackageTags>logger logging log text json memory console blazor utility</PackageTags>
 		<RepositoryUrl>https://github.com/NF-Software-Inc/Easy-Logger</RepositoryUrl>
@@ -56,11 +56,11 @@
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.2" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.*" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.*" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

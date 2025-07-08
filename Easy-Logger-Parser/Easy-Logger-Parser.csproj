@@ -13,10 +13,10 @@
 		<Company>NF Software Inc.</Company>
 		<Product>Easy Logger Parser</Product>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<AssemblyVersion>2.2.0.0</AssemblyVersion>
-		<FileVersion>2.2.0.0</FileVersion>
-		<Version>2.2.0</Version>
-		<MauiVersion>9.0.50</MauiVersion>
+		<AssemblyVersion>2.2.1.0</AssemblyVersion>
+		<FileVersion>2.2.1.0</FileVersion>
+		<Version>2.2.1</Version>
+		<MauiVersion>9.0.81</MauiVersion>
 
 		<!-- Display name -->
 		<ApplicationTitle>Easy Logger Parser</ApplicationTitle>
@@ -26,12 +26,12 @@
 		<ApplicationIdGuid>D1B106D6-AADE-4BEC-BF43-0FEC2E6EF991</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>2.2.0</ApplicationDisplayVersion>
-		<ApplicationVersion>2</ApplicationVersion>
+		<ApplicationDisplayVersion>2.2.1</ApplicationDisplayVersion>
+		<ApplicationVersion>3</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">34.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<DefaultLanguage>en</DefaultLanguage>
@@ -41,6 +41,14 @@
 		<AndroidPackageFormat>aab</AndroidPackageFormat>
 		<AndroidUseAapt2>True</AndroidUseAapt2>
 		<AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-windows10.0.19041.0|AnyCPU'">
+		<WindowsPackageType>None</WindowsPackageType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-windows10.0.19041.0|AnyCPU'">
+		<WindowsPackageType>MSIX</WindowsPackageType>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -58,9 +66,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Easy.Blazor.Bulma" Version="1.1.*" />
+		<PackageReference Include="Easy.Blazor.Bulma" Version="1.2.*" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
 	</ItemGroup>
 
