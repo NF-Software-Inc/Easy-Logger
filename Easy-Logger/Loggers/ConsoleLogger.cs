@@ -81,7 +81,9 @@ namespace Easy_Logger.Loggers
                     Console.ForegroundColor = current.LogLevelToColorMap.ContainsKey(entry.Severity) ? current.LogLevelToColorMap[entry.Severity] : ConsoleColor.White;
 
                 Console.Write(current.Formatter.Invoke(entry));
-                Console.ForegroundColor = ConsoleColor.Gray;
+
+				if (current.UseColoredMessages)
+					Console.ForegroundColor = ConsoleColor.Gray;
             }
         }
     }
