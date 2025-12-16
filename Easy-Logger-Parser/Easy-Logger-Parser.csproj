@@ -13,9 +13,9 @@
 		<Company>NF Software Inc.</Company>
 		<Product>Easy Logger Parser</Product>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<AssemblyVersion>2.2.2.0</AssemblyVersion>
-		<FileVersion>2.2.2.0</FileVersion>
-		<Version>2.2.2</Version>
+		<AssemblyVersion>2.2.3.0</AssemblyVersion>
+		<FileVersion>2.2.3.0</FileVersion>
+		<Version>2.2.3</Version>
 		<MauiVersion>9.0.81</MauiVersion>
 
 		<!-- Display name -->
@@ -26,8 +26,8 @@
 		<ApplicationIdGuid>D1B106D6-AADE-4BEC-BF43-0FEC2E6EF991</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>2.2.2</ApplicationDisplayVersion>
-		<ApplicationVersion>3</ApplicationVersion>
+		<ApplicationDisplayVersion>2.2.3</ApplicationDisplayVersion>
+		<ApplicationVersion>4</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
