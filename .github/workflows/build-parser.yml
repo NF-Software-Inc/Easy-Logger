@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: build-parser
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  GitHubUsername: NF-Software-Inc
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+    - uses: actions/checkout@v4.2.2
+      with:
+        submodules: true
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4.3.1
+      with:
+        dotnet-version: |
+          10.0.x
+          9.0.x
+          8.0.x
+    - name: Install MAUI
+      run: dotnet workload install maui
+      working-directory: .\Easy-Logger-Parser
+    - name: Install dependencies parser
+      run: dotnet restore --framework net9.0-android
+      working-directory: .\Easy-Logger-Parser
+    - name: Build parser
+      run: dotnet build --configuration Release -f net9.0-android
+      working-directory: .\Easy-Logger-Parser
