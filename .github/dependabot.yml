@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/Easy-Logger"
+    schedule:
+      interval: "monthly"
+
+  - package-ecosystem: "nuget"
+    directory: "/Easy-Logger-Blazor"
+    schedule:
+      interval: "monthly"
+
+  - package-ecosystem: "nuget"
+    directory: "/Easy-Logger-Sql"
+    schedule:
+      interval: "monthly"
+
+  - package-ecosystem: "nuget"
+    directory: "/Easy-Logger-Parser"
+    schedule:
+      interval: "monthly"
