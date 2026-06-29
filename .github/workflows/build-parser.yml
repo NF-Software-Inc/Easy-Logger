@@ -29,5 +29,5 @@ jobs:
         dotnet restore
       working-directory: .\Easy-Logger-Parser
     - name: Build parser
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release
       working-directory: .\Easy-Logger-Parser
