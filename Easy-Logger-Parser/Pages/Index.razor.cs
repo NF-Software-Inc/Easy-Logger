@@ -26,6 +26,10 @@ public partial class Index : ComponentBase
 
 	private const int MaxFiles = 25;
 
+	/// <summary>
+	/// Reads and parses all files selected by the user, merging their log entries into a single combined list.
+	/// </summary>
+	/// <param name="args">Contains the files selected by the user</param>
 	private async Task AddFile(InputFileChangeEventArgs args)
 	{
 		var files = args.GetMultipleFiles(MaxFiles);
@@ -39,6 +43,7 @@ public partial class Index : ComponentBase
 
 		foreach (var file in files)
 		{
+			// Read the raw contents of the current file into memory
 			var buffer = new byte[file.Size];
 			var max = 100 * 1_048_576;
 
@@ -46,6 +51,7 @@ public partial class Index : ComponentBase
 
 			lastFileData = System.Text.Encoding.UTF8.GetString(buffer);
 
+			// Parse the file contents and merge any resulting entries into the combined list
 			var entries = ParseLogFileData(lastFileData);
 
 			if (entries != null)
@@ -55,6 +61,7 @@ public partial class Index : ComponentBase
 			}
 		}
 
+		// Display the last selected file's raw contents and the combined parsed entries from all files
 		InputModel.LogFileData = lastFileData;
 		InputModel.LogEntries = hasParsedEntries ? combinedEntries : null;
 		UpdateFilterMetadata();
@@ -68,6 +75,10 @@ public partial class Index : ComponentBase
 			TryParseLogFileData(changed);
 	}
 
+	/// <summary>
+	/// Attempts to parse the manually edited log file data and updates the filter metadata to match.
+	/// </summary>
+	/// <param name="data">The log file data to parse</param>
 	private bool TryParseLogFileData(string data)
 	{
 		InputModel.LogEntries = ParseLogFileData(data);
@@ -76,6 +87,10 @@ public partial class Index : ComponentBase
 		return InputModel.LogEntries != null;
 	}
 
+	/// <summary>
+	/// Deserializes the provided log file data into a list of log entries, wrapping the data in an array if needed.
+	/// </summary>
+	/// <param name="data">The log file data to parse</param>
 	private static List<ILoggerEntry>? ParseLogFileData(string data)
 	{
 		try
@@ -97,6 +112,9 @@ public partial class Index : ComponentBase
 		}
 	}
 
+	/// <summary>
+	/// Recomputes the available log sources, timestamp range, and log level filters from the currently loaded log entries.
+	/// </summary>
 	private void UpdateFilterMetadata()
 	{
 		if (InputModel.LogEntries != null && InputModel.LogEntries.Count > 0)
@@ -116,7 +134,11 @@ public partial class Index : ComponentBase
 		}
 		else
 		{
+			// No entries were parsed, so clear all filter state derived from prior entries
 			InputModel.LogSources = [];
+			ViewModel.Start = null;
+			ViewModel.End = null;
+			ViewModel.SelectedLogLevels = LogLevelFlagged.None;
 		}
 	}
 
