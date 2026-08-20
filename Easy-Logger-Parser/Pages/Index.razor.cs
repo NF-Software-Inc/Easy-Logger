@@ -24,20 +24,40 @@ public partial class Index : ComponentBase
 			return ".txt,.json,.log";
 	}
 
+	private const int MaxFiles = 25;
+
 	private async Task AddFile(InputFileChangeEventArgs args)
 	{
-		var file = args.GetMultipleFiles(1).FirstOrDefault();
+		var files = args.GetMultipleFiles(MaxFiles);
 
-		if (file == null)
+		if (files.Count == 0)
 			return;
 
-		var buffer = new byte[file.Size];
-		var max = 100 * 1_048_576;
+		var combinedEntries = new List<ILoggerEntry>();
+		var hasParsedEntries = false;
+		string? lastFileData = null;
 
-		await file.OpenReadStream(max).ReadAsync(buffer);
+		foreach (var file in files)
+		{
+			var buffer = new byte[file.Size];
+			var max = 100 * 1_048_576;
 
-		InputModel.LogFileData = System.Text.Encoding.UTF8.GetString(buffer);
-		TryParseLogFileData(InputModel.LogFileData);
+			await file.OpenReadStream(max).ReadAsync(buffer);
+
+			lastFileData = System.Text.Encoding.UTF8.GetString(buffer);
+
+			var entries = ParseLogFileData(lastFileData);
+
+			if (entries != null)
+			{
+				hasParsedEntries = true;
+				combinedEntries.AddRange(entries);
+			}
+		}
+
+		InputModel.LogFileData = lastFileData;
+		InputModel.LogEntries = hasParsedEntries ? combinedEntries : null;
+		UpdateFilterMetadata();
 	}
 
 	private void OnLogFileDataChanged(ChangeEventArgs args)
@@ -50,40 +70,53 @@ public partial class Index : ComponentBase
 
 	private bool TryParseLogFileData(string data)
 	{
+		InputModel.LogEntries = ParseLogFileData(data);
+		UpdateFilterMetadata();
+
+		return InputModel.LogEntries != null;
+	}
+
+	private static List<ILoggerEntry>? ParseLogFileData(string data)
+	{
 		try
 		{
-			InputModel.LogEntries = JsonSerializer.Deserialize<IEnumerable<LoggerEntryDeserializer>>(data)?.Cast<ILoggerEntry>().ToList();
-
-			if (InputModel.LogEntries != null)
-			{
-				InputModel.LogSources = InputModel.LogEntries
-					.Where(x => string.IsNullOrWhiteSpace(x.Source) == false)
-					.Select(x => x.Source!)
-					.Distinct()
-					.ToList();
-
-				ViewModel.Start = InputModel.LogEntries.Min(x => x.Timestamp);
-				ViewModel.End = InputModel.LogEntries.Max(x => x.Timestamp);
-				ViewModel.SelectedLogLevels = LogLevelFlagged.None;
-
-				foreach (var level in InputModel.LogEntries.Select(x => x.Severity).Distinct())
-					ViewModel.SelectedLogLevels |= StandardToFlagged[level];
-			}
-
-			return true;
+			return JsonSerializer.Deserialize<IEnumerable<LoggerEntryDeserializer>>(data)?.Cast<ILoggerEntry>().ToList();
 		}
 		catch (JsonException)
 		{
-			var trimmed = data.Trim().TrimEnd(['\r','\n']).TrimEnd(',');
+			var trimmed = data.Trim().TrimEnd(['\r', '\n']).TrimEnd(',');
 
 			if (trimmed.StartsWith('[') == false && trimmed.EndsWith(']') == false)
-				return TryParseLogFileData($"[{trimmed}]");
+				return ParseLogFileData($"[{trimmed}]");
 			else
-				return false;
+				return null;
 		}
 		catch
 		{
-			return false;
+			return null;
+		}
+	}
+
+	private void UpdateFilterMetadata()
+	{
+		if (InputModel.LogEntries != null && InputModel.LogEntries.Count > 0)
+		{
+			InputModel.LogSources = InputModel.LogEntries
+				.Where(x => string.IsNullOrWhiteSpace(x.Source) == false)
+				.Select(x => x.Source!)
+				.Distinct()
+				.ToList();
+
+			ViewModel.Start = InputModel.LogEntries.Min(x => x.Timestamp);
+			ViewModel.End = InputModel.LogEntries.Max(x => x.Timestamp);
+			ViewModel.SelectedLogLevels = LogLevelFlagged.None;
+
+			foreach (var level in InputModel.LogEntries.Select(x => x.Severity).Distinct())
+				ViewModel.SelectedLogLevels |= StandardToFlagged[level];
+		}
+		else
+		{
+			InputModel.LogSources = [];
 		}
 	}
 
