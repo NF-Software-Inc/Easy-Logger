@@ -24,7 +24,10 @@ public partial class Index : ComponentBase
 			return ".txt,.json,.log";
 	}
 
-	private const int MaxFiles = 25;
+    /// <summary>
+    /// The maximum number of files that can be selected and processed at once.
+    /// </summary>
+    private const int MaxFiles = 25;
 
 	/// <summary>
 	/// Reads and parses all files selected by the user, merging their log entries into a single combined list.
@@ -79,6 +82,7 @@ public partial class Index : ComponentBase
 	/// Attempts to parse the manually edited log file data and updates the filter metadata to match.
 	/// </summary>
 	/// <param name="data">The log file data to parse</param>
+	/// <returns>True if data was successfully parsed; otherwise, false.</returns>
 	private bool TryParseLogFileData(string data)
 	{
 		InputModel.LogEntries = ParseLogFileData(data);
@@ -91,6 +95,7 @@ public partial class Index : ComponentBase
 	/// Deserializes the provided log file data into a list of log entries, wrapping the data in an array if needed.
 	/// </summary>
 	/// <param name="data">The log file data to parse</param>
+	/// <returns>A list of log entries if data was successfully parsed; otherwise, null.</returns>
 	private static List<ILoggerEntry>? ParseLogFileData(string data)
 	{
 		try
