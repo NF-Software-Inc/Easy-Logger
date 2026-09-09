@@ -40,50 +40,45 @@ public partial class Index : ComponentBase
 		if (files.Count == 0)
 			return;
 
-		var combinedEntries = new List<ILoggerEntry>();
-		var hasParsedEntries = false;
-		string? lastFileData = null;
+        InputModel.LogEntries = null;
+        string? lastFileData = null;
 
 		foreach (var file in files)
 		{
 			// Read the raw contents of the current file into memory
-			var buffer = new byte[file.Size];
 			var max = 100 * 1_048_576;
 
-			await file.OpenReadStream(max).ReadAsync(buffer);
-
-			lastFileData = System.Text.Encoding.UTF8.GetString(buffer);
+            await using var stream = file.OpenReadStream(max);
+            using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+            lastFileData = await reader.ReadToEndAsync();
 
 			// Parse the file contents and merge any resulting entries into the combined list
 			var entries = ParseLogFileData(lastFileData);
 
 			if (entries != null)
 			{
-				hasParsedEntries = true;
-				combinedEntries.AddRange(entries);
+				InputModel.LogEntries ??= [];
+                InputModel.LogEntries.AddRange(entries);
 			}
 		}
 
-		// Display the last selected file's raw contents and the combined parsed entries from all files
+		// Display the last selected file's raw contents
 		InputModel.LogFileData = lastFileData;
-		InputModel.LogEntries = hasParsedEntries ? combinedEntries : null;
 		UpdateFilterMetadata();
 	}
 
-	private void OnLogFileDataChanged(ChangeEventArgs args)
-	{
-		var changed = args.Value?.ToString();
+    private void OnLogFileDataChanged()
+    {
+        if (string.IsNullOrWhiteSpace(InputModel.LogFileData) == false)
+            TryParseLogFileData(InputModel.LogFileData);
+    }
 
-		if (string.IsNullOrWhiteSpace(changed) == false)
-			TryParseLogFileData(changed);
-	}
-
-	/// <summary>
-	/// Attempts to parse the manually edited log file data and updates the filter metadata to match.
-	/// </summary>
-	/// <param name="data">The log file data to parse</param>
-	/// <returns>True if data was successfully parsed; otherwise, false.</returns>
-	private bool TryParseLogFileData(string data)
+    /// <summary>
+    /// Attempts to parse the manually edited log file data and updates the filter metadata to match.
+    /// </summary>
+    /// <param name="data">The log file data to parse</param>
+    /// <returns>True if data was successfully parsed; otherwise, false.</returns>
+    private bool TryParseLogFileData(string data)
 	{
 		InputModel.LogEntries = ParseLogFileData(data);
 		UpdateFilterMetadata();
@@ -122,29 +117,16 @@ public partial class Index : ComponentBase
 	/// </summary>
 	private void UpdateFilterMetadata()
 	{
-		if (InputModel.LogEntries != null && InputModel.LogEntries.Count > 0)
-		{
-			InputModel.LogSources = InputModel.LogEntries
-				.Where(x => string.IsNullOrWhiteSpace(x.Source) == false)
-				.Select(x => x.Source!)
-				.Distinct()
-				.ToList();
+		InputModel.LogSources = InputModel.LogEntries?
+			.Where(x => string.IsNullOrWhiteSpace(x.Source) == false)
+			.Select(x => x.Source!).Distinct().ToList() ?? [];
 
-			ViewModel.Start = InputModel.LogEntries.Min(x => x.Timestamp);
-			ViewModel.End = InputModel.LogEntries.Max(x => x.Timestamp);
-			ViewModel.SelectedLogLevels = LogLevelFlagged.None;
+		ViewModel.Start = InputModel.LogEntries.MinOrDefault(x => x.Timestamp);
+        ViewModel.End = InputModel.LogEntries.MaxOrDefault(x => x.Timestamp);
+		ViewModel.SelectedLogLevels = LogLevelFlagged.None;
 
-			foreach (var level in InputModel.LogEntries.Select(x => x.Severity).Distinct())
-				ViewModel.SelectedLogLevels |= StandardToFlagged[level];
-		}
-		else
-		{
-			// No entries were parsed, so clear all filter state derived from prior entries
-			InputModel.LogSources = [];
-			ViewModel.Start = null;
-			ViewModel.End = null;
-			ViewModel.SelectedLogLevels = LogLevelFlagged.None;
-		}
+		foreach (var level in InputModel.LogEntries?.Select(x => x.Severity).Distinct() ?? [])
+			ViewModel.SelectedLogLevels |= StandardToFlagged[level];
 	}
 
 	private List<ILoggerEntry> GetDisplayLogEntries()
@@ -221,7 +203,7 @@ public partial class Index : ComponentBase
 
     private class DataModel
 	{
-		[Display(Name = "Log File Data", Description = "Contains the JSON from the logs to parse")]
+		[Display(Name = "Log File Data", Description = "Contains the JSON from the last log file read in the file picker")]
 		public string? LogFileData { get; set; }
 
 		public List<ILoggerEntry>? LogEntries { get; set; }

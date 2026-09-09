@@ -103,7 +103,7 @@
 						<div class="field">
 							<Label For="() => InputModel.LogFileData" TooltipMode="TooltipMode" />
 							<div class="control has-icons-left">
-								<InputTextArea class="input" @bind-Value="InputModel.LogFileData" @oninput='OnLogFileDataChanged' autocomplete="off" rows="6" />
+								<InputTextArea class="input" @bind-Value="InputModel.LogFileData" @bind-Value:after="OnLogFileDataChanged" autocomplete="off" rows="6" />
 								<span class="material-icons icon is-left">description</span>
 								<div class="help is-danger">
 									<ValidationMessage For="() => InputModel.LogFileData" />
