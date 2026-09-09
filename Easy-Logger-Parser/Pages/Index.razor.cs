@@ -24,67 +24,106 @@ public partial class Index : ComponentBase
 			return ".txt,.json,.log";
 	}
 
+    /// <summary>
+    /// The maximum number of files that can be selected and processed at once.
+    /// </summary>
+    private const int MaxFiles = 25;
+
+	/// <summary>
+	/// Reads and parses all files selected by the user, merging their log entries into a single combined list.
+	/// </summary>
+	/// <param name="args">Contains the files selected by the user</param>
 	private async Task AddFile(InputFileChangeEventArgs args)
 	{
-		var file = args.GetMultipleFiles(1).FirstOrDefault();
+		var files = args.GetMultipleFiles(MaxFiles);
 
-		if (file == null)
+		if (files.Count == 0)
 			return;
 
-		var buffer = new byte[file.Size];
-		var max = 100 * 1_048_576;
+        InputModel.LogEntries = null;
+        string? lastFileData = null;
 
-		await file.OpenReadStream(max).ReadAsync(buffer);
+		foreach (var file in files)
+		{
+			// Read the raw contents of the current file into memory
+			var max = 100 * 1_048_576;
 
-		InputModel.LogFileData = System.Text.Encoding.UTF8.GetString(buffer);
-		TryParseLogFileData(InputModel.LogFileData);
+            await using var stream = file.OpenReadStream(max);
+            using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+            lastFileData = await reader.ReadToEndAsync();
+
+			// Parse the file contents and merge any resulting entries into the combined list
+			var entries = ParseLogFileData(lastFileData);
+
+			if (entries != null)
+			{
+				InputModel.LogEntries ??= [];
+                InputModel.LogEntries.AddRange(entries);
+			}
+		}
+
+		// Display the last selected file's raw contents
+		InputModel.LogFileData = lastFileData;
+		UpdateFilterMetadata();
 	}
 
-	private void OnLogFileDataChanged(ChangeEventArgs args)
+    private void OnLogFileDataChanged()
+    {
+        if (string.IsNullOrWhiteSpace(InputModel.LogFileData) == false)
+            TryParseLogFileData(InputModel.LogFileData);
+    }
+
+    /// <summary>
+    /// Attempts to parse the manually edited log file data and updates the filter metadata to match.
+    /// </summary>
+    /// <param name="data">The log file data to parse</param>
+    /// <returns>True if data was successfully parsed; otherwise, false.</returns>
+    private bool TryParseLogFileData(string data)
 	{
-		var changed = args.Value?.ToString();
+		InputModel.LogEntries = ParseLogFileData(data);
+		UpdateFilterMetadata();
 
-		if (string.IsNullOrWhiteSpace(changed) == false)
-			TryParseLogFileData(changed);
+		return InputModel.LogEntries != null;
 	}
 
-	private bool TryParseLogFileData(string data)
+	/// <summary>
+	/// Deserializes the provided log file data into a list of log entries, wrapping the data in an array if needed.
+	/// </summary>
+	/// <param name="data">The log file data to parse</param>
+	/// <returns>A list of log entries if data was successfully parsed; otherwise, null.</returns>
+	private static List<ILoggerEntry>? ParseLogFileData(string data)
 	{
 		try
 		{
-			InputModel.LogEntries = JsonSerializer.Deserialize<IEnumerable<LoggerEntryDeserializer>>(data)?.Cast<ILoggerEntry>().ToList();
-
-			if (InputModel.LogEntries != null)
-			{
-				InputModel.LogSources = InputModel.LogEntries
-					.Where(x => string.IsNullOrWhiteSpace(x.Source) == false)
-					.Select(x => x.Source!)
-					.Distinct()
-					.ToList();
-
-				ViewModel.Start = InputModel.LogEntries.Min(x => x.Timestamp);
-				ViewModel.End = InputModel.LogEntries.Max(x => x.Timestamp);
-				ViewModel.SelectedLogLevels = LogLevelFlagged.None;
-
-				foreach (var level in InputModel.LogEntries.Select(x => x.Severity).Distinct())
-					ViewModel.SelectedLogLevels |= StandardToFlagged[level];
-			}
-
-			return true;
+			return JsonSerializer.Deserialize<IEnumerable<LoggerEntryDeserializer>>(data)?.Cast<ILoggerEntry>().ToList();
 		}
 		catch (JsonException)
 		{
-			var trimmed = data.Trim().TrimEnd(['\r','\n']).TrimEnd(',');
+			var trimmed = data.Trim().TrimEnd(['\r', '\n']).TrimEnd(',');
 
 			if (trimmed.StartsWith('[') == false && trimmed.EndsWith(']') == false)
-				return TryParseLogFileData($"[{trimmed}]");
+				return ParseLogFileData($"[{trimmed}]");
 			else
-				return false;
+				return null;
 		}
 		catch
 		{
-			return false;
+			return null;
 		}
+	}
+
+	/// <summary>
+	/// Recomputes the available log sources, timestamp range, and log level filters from the currently loaded log entries.
+	/// </summary>
+	private void UpdateFilterMetadata()
+	{
+		InputModel.LogSources = InputModel.LogEntries?
+			.Where(x => string.IsNullOrWhiteSpace(x.Source) == false)
+			.Select(x => x.Source!).Distinct().ToList() ?? [];
+
+		ViewModel.Start = InputModel.LogEntries.MinOrDefault(x => x.Timestamp);
+        ViewModel.End = InputModel.LogEntries.MaxOrDefault(x => x.Timestamp);
+		ViewModel.SelectedLogLevels = InputModel.LogEntries?.Select(x => x.Severity).Distinct().ToList() ?? [LogLevel.None];
 	}
 
 	private List<ILoggerEntry> GetDisplayLogEntries()
@@ -103,19 +142,11 @@ public partial class Index : ComponentBase
 		if (ViewModel.EventNumber != null)
 			predicate = predicate.And(x => x.Id != null && x.Id.Value.Id == ViewModel.EventNumber.Value);
 
-		if (ViewModel.SelectedLogLevels != LogLevelFlagged.None)
-		{
-			var levels = new List<LogLevel>();
+		if (ViewModel.SelectedLogLevels.Count > 0)
+			predicate = predicate.And(x => ViewModel.SelectedLogLevels.Contains(x.Severity));
 
-            foreach (var flag in Enum.GetValues<LogLevelFlagged>())
-				if ((ViewModel.SelectedLogLevels & flag) != 0)
-					levels.Add(FlaggedToStandard[flag]);
-
-			predicate = predicate.And(x => levels.Contains(x.Severity));
-        }
-
-		if (string.IsNullOrWhiteSpace(ViewModel.Source) == false)
-			predicate = predicate.And(x => string.Equals(x.Source, ViewModel.Source, StringComparison.OrdinalIgnoreCase));
+		if (ViewModel.SelectedSources.Count > 0)
+			predicate = predicate.And(x => x.Source != null && ViewModel.SelectedSources.Contains(x.Source, StringComparer.OrdinalIgnoreCase));
 
         if (string.IsNullOrWhiteSpace(ViewModel.EventName) == false)
 			predicate = predicate.And(x => x.Id != null && string.Equals(x.Id.Value.Name, ViewModel.EventName, StringComparison.OrdinalIgnoreCase));
@@ -161,7 +192,7 @@ public partial class Index : ComponentBase
 
     private class DataModel
 	{
-		[Display(Name = "Log File Data", Description = "Contains the JSON from the logs to parse")]
+		[Display(Name = "Log File Data", Description = "Contains the JSON from the last log file read in the file picker")]
 		public string? LogFileData { get; set; }
 
 		public List<ILoggerEntry>? LogEntries { get; set; }
@@ -176,13 +207,13 @@ public partial class Index : ComponentBase
 		[Display(Name = "End", Description = "Filters to log entries created at or before the specified time")]
 		public DateTime? End { get; set; }
 
-		[Display(Name = "Source", Description = "Filters to log entries with a matching source value")]
-		public string? Source { get; set; }
+		[Display(Name = "Source", Description = "Filters to log entries with matching source values")]
+		public List<string> SelectedSources { get; set; } = [];
 
 		[Display(Name = "Log Levels", Description = "Filters to log entries with a level matching one of the selected options")]
-		public LogLevelFlagged SelectedLogLevels { get; set; } = LogLevelFlagged.None;
+		public List<LogLevel> SelectedLogLevels { get; set; } = [LogLevel.None];
 
-		[Display(Name = "Event Id", Description = "Filters to log entries with a matching id value")]
+        [Display(Name = "Event Id", Description = "Filters to log entries with a matching id value")]
 		public int? EventNumber { get; set; }
 
 		[Display(Name = "Event Name", Description = "Filters to log entries with a matching name value")]
@@ -196,37 +227,4 @@ public partial class Index : ComponentBase
 		public bool SortDirection { get; set; }
 	}
 
-	[Flags]
-	private enum LogLevelFlagged
-	{
-		None = 0b_00000000_00000000_00000000_00000000,
-        Trace = 0b_00000000_00000000_00000000_00000001,
-        Debug = 0b_00000000_00000000_00000000_00000010,
-        Information = 0b_00000000_00000000_00000000_00000100,
-        Warning = 0b_00000000_00000000_00000000_00001000,
-        Error = 0b_00000000_00000000_00000000_00010000,
-        Critical = 0b_00000000_00000000_00000000_00100000
-    }
-
-	private static readonly Dictionary<LogLevelFlagged, LogLevel> FlaggedToStandard = new()
-	{
-        [LogLevelFlagged.None] = LogLevel.None,
-        [LogLevelFlagged.Trace] = LogLevel.Trace,
-		[LogLevelFlagged.Debug] = LogLevel.Debug,
-		[LogLevelFlagged.Information] = LogLevel.Information,
-		[LogLevelFlagged.Warning] = LogLevel.Warning,
-		[LogLevelFlagged.Error] = LogLevel.Error,
-		[LogLevelFlagged.Critical] = LogLevel.Critical
-	};
-
-	private readonly Dictionary<LogLevel, LogLevelFlagged> StandardToFlagged = new()
-	{
-        [LogLevel.None] = LogLevelFlagged.None,
-        [LogLevel.Trace] = LogLevelFlagged.Trace,
-        [LogLevel.Debug] = LogLevelFlagged.Debug,
-        [LogLevel.Information] = LogLevelFlagged.Information,
-        [LogLevel.Warning] = LogLevelFlagged.Warning,
-        [LogLevel.Error] = LogLevelFlagged.Error,
-        [LogLevel.Critical] = LogLevelFlagged.Critical
-    };
-}
+	}
