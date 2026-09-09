@@ -1,0 +1,12 @@
+  Determining projects to restore...
+/usr/share/dotnet/sdk/10.0.400/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.ImportWorkloads.targets(38,5): error NETSDK1147: To build this project, the following workloads must be installed: maui-android [/home/runner/work/Easy-Logger/Easy-Logger/Easy-Logger-Parser/Easy-Logger-Parser.csproj::TargetFramework=net10.0-android]
+/usr/share/dotnet/sdk/10.0.400/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.ImportWorkloads.targets(38,5): error NETSDK1147: To install these workloads, run the following command: dotnet workload restore [/home/runner/work/Easy-Logger/Easy-Logger/Easy-Logger-Parser/Easy-Logger-Parser.csproj::TargetFramework=net10.0-android]
+
+Build FAILED.
+
+/usr/share/dotnet/sdk/10.0.400/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.ImportWorkloads.targets(38,5): error NETSDK1147: To build this project, the following workloads must be installed: maui-android [/home/runner/work/Easy-Logger/Easy-Logger/Easy-Logger-Parser/Easy-Logger-Parser.csproj::TargetFramework=net10.0-android]
+/usr/share/dotnet/sdk/10.0.400/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.ImportWorkloads.targets(38,5): error NETSDK1147: To install these workloads, run the following command: dotnet workload restore [/home/runner/work/Easy-Logger/Easy-Logger/Easy-Logger-Parser/Easy-Logger-Parser.csproj::TargetFramework=net10.0-android]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:02.99
