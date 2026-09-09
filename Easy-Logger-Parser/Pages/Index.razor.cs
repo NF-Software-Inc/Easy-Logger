@@ -123,10 +123,7 @@ public partial class Index : ComponentBase
 
 		ViewModel.Start = InputModel.LogEntries.MinOrDefault(x => x.Timestamp);
         ViewModel.End = InputModel.LogEntries.MaxOrDefault(x => x.Timestamp);
-		ViewModel.SelectedLogLevels = LogLevelFlagged.None;
-
-		foreach (var level in InputModel.LogEntries?.Select(x => x.Severity).Distinct() ?? [])
-			ViewModel.SelectedLogLevels |= StandardToFlagged[level];
+		ViewModel.SelectedLogLevels = InputModel.LogEntries?.Select(x => x.Severity).Distinct().ToList() ?? [LogLevel.None];
 	}
 
 	private List<ILoggerEntry> GetDisplayLogEntries()
@@ -145,16 +142,8 @@ public partial class Index : ComponentBase
 		if (ViewModel.EventNumber != null)
 			predicate = predicate.And(x => x.Id != null && x.Id.Value.Id == ViewModel.EventNumber.Value);
 
-		if (ViewModel.SelectedLogLevels != LogLevelFlagged.None)
-		{
-			var levels = new List<LogLevel>();
-
-            foreach (var flag in Enum.GetValues<LogLevelFlagged>())
-				if ((ViewModel.SelectedLogLevels & flag) != 0)
-					levels.Add(FlaggedToStandard[flag]);
-
-			predicate = predicate.And(x => levels.Contains(x.Severity));
-        }
+		if (ViewModel.SelectedLogLevels.Count > 0)
+			predicate = predicate.And(x => ViewModel.SelectedLogLevels.Contains(x.Severity));
 
 		if (string.IsNullOrWhiteSpace(ViewModel.Source) == false)
 			predicate = predicate.And(x => string.Equals(x.Source, ViewModel.Source, StringComparison.OrdinalIgnoreCase));
@@ -222,9 +211,9 @@ public partial class Index : ComponentBase
 		public string? Source { get; set; }
 
 		[Display(Name = "Log Levels", Description = "Filters to log entries with a level matching one of the selected options")]
-		public LogLevelFlagged SelectedLogLevels { get; set; } = LogLevelFlagged.None;
+		public List<LogLevel> SelectedLogLevels { get; set; } = [LogLevel.None];
 
-		[Display(Name = "Event Id", Description = "Filters to log entries with a matching id value")]
+        [Display(Name = "Event Id", Description = "Filters to log entries with a matching id value")]
 		public int? EventNumber { get; set; }
 
 		[Display(Name = "Event Name", Description = "Filters to log entries with a matching name value")]
@@ -238,37 +227,4 @@ public partial class Index : ComponentBase
 		public bool SortDirection { get; set; }
 	}
 
-	[Flags]
-	private enum LogLevelFlagged
-	{
-		None = 0b_00000000_00000000_00000000_00000000,
-        Trace = 0b_00000000_00000000_00000000_00000001,
-        Debug = 0b_00000000_00000000_00000000_00000010,
-        Information = 0b_00000000_00000000_00000000_00000100,
-        Warning = 0b_00000000_00000000_00000000_00001000,
-        Error = 0b_00000000_00000000_00000000_00010000,
-        Critical = 0b_00000000_00000000_00000000_00100000
-    }
-
-	private static readonly Dictionary<LogLevelFlagged, LogLevel> FlaggedToStandard = new()
-	{
-        [LogLevelFlagged.None] = LogLevel.None,
-        [LogLevelFlagged.Trace] = LogLevel.Trace,
-		[LogLevelFlagged.Debug] = LogLevel.Debug,
-		[LogLevelFlagged.Information] = LogLevel.Information,
-		[LogLevelFlagged.Warning] = LogLevel.Warning,
-		[LogLevelFlagged.Error] = LogLevel.Error,
-		[LogLevelFlagged.Critical] = LogLevel.Critical
-	};
-
-	private readonly Dictionary<LogLevel, LogLevelFlagged> StandardToFlagged = new()
-	{
-        [LogLevel.None] = LogLevelFlagged.None,
-        [LogLevel.Trace] = LogLevelFlagged.Trace,
-        [LogLevel.Debug] = LogLevelFlagged.Debug,
-        [LogLevel.Information] = LogLevelFlagged.Information,
-        [LogLevel.Warning] = LogLevelFlagged.Warning,
-        [LogLevel.Error] = LogLevelFlagged.Error,
-        [LogLevel.Critical] = LogLevelFlagged.Critical
-    };
-}
+	}
