@@ -89,6 +89,16 @@
 								<span class="material-icons icon is-left">file_upload</span>
 							</div>
 						</div>
+
+						<div class="field">
+							<Label For="() => InputModel.IsResetMode" TooltipMode="TooltipMode" />
+							<div class="control">
+								<InputSwitch @bind-Value="InputModel.IsResetMode" />
+							</div>
+							<p class="help">
+								@(InputModel.IsResetMode ? "Reset: Clears existing entries before adding" : "Append: Adds to existing entries")
+							</p>
+						</div>
 					</div>
 
 					<div class="column">

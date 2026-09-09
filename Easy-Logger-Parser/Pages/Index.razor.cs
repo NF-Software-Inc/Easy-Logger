@@ -40,7 +40,12 @@ public partial class Index : ComponentBase
 		if (files.Count == 0)
 			return;
 
-        InputModel.LogEntries = null;
+        // Clear entries if in Reset mode; otherwise append to existing entries
+        if (InputModel.IsResetMode)
+        {
+            InputModel.LogEntries.Clear();
+        }
+
         string? lastFileData = null;
 
 		foreach (var file in files)
@@ -57,7 +62,6 @@ public partial class Index : ComponentBase
 
 			if (entries != null)
 			{
-				InputModel.LogEntries ??= [];
                 InputModel.LogEntries.AddRange(entries);
 			}
 		}
@@ -80,10 +84,22 @@ public partial class Index : ComponentBase
     /// <returns>True if data was successfully parsed; otherwise, false.</returns>
     private bool TryParseLogFileData(string data)
 	{
-		InputModel.LogEntries = ParseLogFileData(data);
+		var parsed = ParseLogFileData(data);
+
+        // Apply Reset/Append logic for manual parsing
+        if (InputModel.IsResetMode)
+        {
+            InputModel.LogEntries.Clear();
+        }
+
+        if (parsed != null)
+        {
+            InputModel.LogEntries.AddRange(parsed);
+        }
+
 		UpdateFilterMetadata();
 
-		return InputModel.LogEntries != null;
+		return parsed != null;
 	}
 
 	/// <summary>
@@ -99,10 +115,20 @@ public partial class Index : ComponentBase
 		}
 		catch (JsonException)
 		{
+			// Attempt single retry: wrap non-array JSON in brackets
 			var trimmed = data.Trim().TrimEnd(['\r', '\n']).TrimEnd(',');
 
 			if (trimmed.StartsWith('[') == false && trimmed.EndsWith(']') == false)
-				return ParseLogFileData($"[{trimmed}]");
+			{
+				try
+				{
+					return JsonSerializer.Deserialize<IEnumerable<LoggerEntryDeserializer>>($"[{trimmed}]")?.Cast<ILoggerEntry>().ToList();
+				}
+				catch
+				{
+					return null;
+				}
+			}
 			else
 				return null;
 		}
@@ -117,18 +143,24 @@ public partial class Index : ComponentBase
 	/// </summary>
 	private void UpdateFilterMetadata()
 	{
-		InputModel.LogSources = InputModel.LogEntries?
+		InputModel.LogSources = InputModel.LogEntries
 			.Where(x => string.IsNullOrWhiteSpace(x.Source) == false)
-			.Select(x => x.Source!).Distinct().ToList() ?? [];
+			.Select(x => x.Source!).Distinct().ToList();
 
 		ViewModel.Start = InputModel.LogEntries.MinOrDefault(x => x.Timestamp);
         ViewModel.End = InputModel.LogEntries.MaxOrDefault(x => x.Timestamp);
-		ViewModel.SelectedLogLevels = InputModel.LogEntries?.Select(x => x.Severity).Distinct().ToList() ?? [LogLevel.None];
+		ViewModel.SelectedLogLevels = InputModel.LogEntries.Select(x => x.Severity).Distinct().ToList();
+		
+		// Ensure at least one log level is selected
+		if (ViewModel.SelectedLogLevels.Count == 0)
+		{
+			ViewModel.SelectedLogLevels = [LogLevel.None];
+		}
 	}
 
 	private List<ILoggerEntry> GetDisplayLogEntries()
 	{
-        if (InputModel.LogEntries == null)
+        if (InputModel.LogEntries.Count == 0)
 			return [];
 
 		var predicate = PredicateBuilder.Create<ILoggerEntry>();
@@ -195,7 +227,11 @@ public partial class Index : ComponentBase
 		[Display(Name = "Log File Data", Description = "Contains the JSON from the last log file read in the file picker")]
 		public string? LogFileData { get; set; }
 
-		public List<ILoggerEntry>? LogEntries { get; set; }
+		public List<ILoggerEntry> LogEntries { get; set; } = [];
+
+		[Display(Name = "Append/Reset Mode", Description = "When Reset, clears existing log entries before adding new ones. When Append, adds to existing entries.")]
+		public bool IsResetMode { get; set; } = false; // Default to Append mode
+
 		public List<string> LogSources { get; set; } = [];
 	}
 
