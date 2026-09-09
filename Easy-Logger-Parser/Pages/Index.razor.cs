@@ -145,8 +145,8 @@ public partial class Index : ComponentBase
 		if (ViewModel.SelectedLogLevels.Count > 0)
 			predicate = predicate.And(x => ViewModel.SelectedLogLevels.Contains(x.Severity));
 
-		if (string.IsNullOrWhiteSpace(ViewModel.Source) == false)
-			predicate = predicate.And(x => string.Equals(x.Source, ViewModel.Source, StringComparison.OrdinalIgnoreCase));
+		if (ViewModel.SelectedSources.Count > 0)
+			predicate = predicate.And(x => x.Source != null && ViewModel.SelectedSources.Contains(x.Source, StringComparer.OrdinalIgnoreCase));
 
         if (string.IsNullOrWhiteSpace(ViewModel.EventName) == false)
 			predicate = predicate.And(x => x.Id != null && string.Equals(x.Id.Value.Name, ViewModel.EventName, StringComparison.OrdinalIgnoreCase));
@@ -207,8 +207,8 @@ public partial class Index : ComponentBase
 		[Display(Name = "End", Description = "Filters to log entries created at or before the specified time")]
 		public DateTime? End { get; set; }
 
-		[Display(Name = "Source", Description = "Filters to log entries with a matching source value")]
-		public string? Source { get; set; }
+		[Display(Name = "Source", Description = "Filters to log entries with matching source values")]
+		public List<string> SelectedSources { get; set; } = [];
 
 		[Display(Name = "Log Levels", Description = "Filters to log entries with a level matching one of the selected options")]
 		public List<LogLevel> SelectedLogLevels { get; set; } = [LogLevel.None];

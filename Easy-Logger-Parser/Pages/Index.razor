@@ -62,25 +62,16 @@
 				</div>
 
 				<div class="field">
-					<Label For="() => ViewModel.Source" TooltipMode="TooltipMode" />
-					<div class="control has-icons-left is-expanded">
-						<div class="select is-fullwidth">
-							<InputSelect @bind-Value="ViewModel.Source">
-								<option value="">Any</option>
-								@foreach (var source in InputModel.LogSources)
-								{
-									<option value="@source">@source</option>
-								}
-							</InputSelect>
-						</div>
-						<span class="material-icons icon is-left">list</span>
+					<Label For="() => ViewModel.SelectedSources" TooltipMode="TooltipMode" />
+					<div class="control is-expanded">
+						<InputSelectMultipleObject class="is-fullwidth" @bind-Value="ViewModel.SelectedSources" DisplayValue='x => x' Items="InputModel.LogSources" ShowGroupButtons=true Contains="(x, y) => x != null && x.Contains(y)" Size="@(Math.Clamp(InputModel.LogSources.Count, 2, 8))" />
 					</div>
 				</div>
 
 				<div class="field">
 					<Label For="() => ViewModel.SelectedLogLevels" TooltipMode="TooltipMode" />
 					<div class="control is-expanded">
-						<InputSelectMultipleObject class="is-fullwidth" @bind-Value="ViewModel.SelectedLogLevels" DisplayValue='x => x.ToString()' Items="Enum.GetValues<LogLevel>().ToList()" ShowGroupButtons=true Contains="(x, y) => x != null && x.Contains(y)" />
+						<InputSelectMultipleObject class="is-fullwidth" @bind-Value="ViewModel.SelectedLogLevels" DisplayValue='x => x.ToString()' Items="Enum.GetValues<LogLevel>().ToList()" ShowGroupButtons=true Contains="(x, y) => x != null && x.Contains(y)" Size="Enum.GetValues<LogLevel>().Count()" />
 					</div>
 				</div>
 			</EditForm>
