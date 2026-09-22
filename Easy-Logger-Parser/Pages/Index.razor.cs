@@ -24,7 +24,7 @@ public partial class Index : ComponentBase
 			return ".txt,.json,.log";
 	}
 
-    /// <summary>
+	/// <summary>
     /// The maximum number of files that can be selected and processed at once.
     /// </summary>
     private const int MaxFiles = 25;
@@ -40,26 +40,23 @@ public partial class Index : ComponentBase
 		if (files.Count == 0)
 			return;
 
-        InputModel.LogEntries = null;
-        string? lastFileData = null;
+		if (InputModel.LogImportMode == ImportMode.Reset)
+			InputModel.LogEntries.Clear();
+
+		string? lastFileData = null;
 
 		foreach (var file in files)
 		{
 			// Read the raw contents of the current file into memory
 			var max = 100 * 1_048_576;
 
-            await using var stream = file.OpenReadStream(max);
-            using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
-            lastFileData = await reader.ReadToEndAsync();
+			await using var stream = file.OpenReadStream(max);
+			using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+			lastFileData = await reader.ReadToEndAsync();
 
 			// Parse the file contents and merge any resulting entries into the combined list
-			var entries = ParseLogFileData(lastFileData);
-
-			if (entries != null)
-			{
-				InputModel.LogEntries ??= [];
-                InputModel.LogEntries.AddRange(entries);
-			}
+			if (TryParseLogFileData(lastFileData, out var entries) && entries != null)
+				InputModel.LogEntries.AddRange(entries);
 		}
 
 		// Display the last selected file's raw contents
@@ -67,48 +64,64 @@ public partial class Index : ComponentBase
 		UpdateFilterMetadata();
 	}
 
-    private void OnLogFileDataChanged()
-    {
-        if (string.IsNullOrWhiteSpace(InputModel.LogFileData) == false)
-            TryParseLogFileData(InputModel.LogFileData);
-    }
-
-    /// <summary>
-    /// Attempts to parse the manually edited log file data and updates the filter metadata to match.
-    /// </summary>
-    /// <param name="data">The log file data to parse</param>
-    /// <returns>True if data was successfully parsed; otherwise, false.</returns>
-    private bool TryParseLogFileData(string data)
+	/// <summary>
+	/// Handles manual edits to the log file data, attempting to parse it and updating the filter metadata to match.
+	/// </summary>
+	private void OnLogFileDataChanged()
 	{
-		InputModel.LogEntries = ParseLogFileData(data);
-		UpdateFilterMetadata();
+		if (string.IsNullOrWhiteSpace(InputModel.LogFileData))
+			return;
 
-		return InputModel.LogEntries != null;
+		if (InputModel.LogImportMode == ImportMode.Reset)
+			InputModel.LogEntries.Clear();
+
+		if (TryParseLogFileData(InputModel.LogFileData, out var parsed) && parsed != null)
+			InputModel.LogEntries.AddRange(parsed);
+
+		UpdateFilterMetadata();
 	}
 
 	/// <summary>
-	/// Deserializes the provided log file data into a list of log entries, wrapping the data in an array if needed.
+	/// Attempts to deserialize the provided log file data into a list of log entries, wrapping the data in an array if needed.
 	/// </summary>
 	/// <param name="data">The log file data to parse</param>
-	/// <returns>A list of log entries if data was successfully parsed; otherwise, null.</returns>
-	private static List<ILoggerEntry>? ParseLogFileData(string data)
+	/// <param name="entries">The parsed log entries if successful; otherwise, null.</param>
+	/// <returns>True if data was successfully parsed; otherwise, false.</returns>
+	private static bool TryParseLogFileData(string data, out List<ILoggerEntry>? entries)
 	{
 		try
 		{
-			return JsonSerializer.Deserialize<IEnumerable<LoggerEntryDeserializer>>(data)?.Cast<ILoggerEntry>().ToList();
+			entries = JsonSerializer.Deserialize<IEnumerable<LoggerEntryDeserializer>>(data)?.Cast<ILoggerEntry>().ToList();
+			return entries != null;
 		}
 		catch (JsonException)
 		{
+			// Attempt single retry: wrap non-array JSON in brackets
 			var trimmed = data.Trim().TrimEnd(['\r', '\n']).TrimEnd(',');
 
 			if (trimmed.StartsWith('[') == false && trimmed.EndsWith(']') == false)
-				return ParseLogFileData($"[{trimmed}]");
+			{
+				try
+				{
+					entries = JsonSerializer.Deserialize<IEnumerable<LoggerEntryDeserializer>>($"[{trimmed}]")?.Cast<ILoggerEntry>().ToList();
+					return entries != null;
+				}
+				catch
+				{
+					entries = null;
+					return false;
+				}
+			}
 			else
-				return null;
+			{
+				entries = null;
+				return false;
+			}
 		}
 		catch
 		{
-			return null;
+			entries = null;
+			return false;
 		}
 	}
 
@@ -117,18 +130,22 @@ public partial class Index : ComponentBase
 	/// </summary>
 	private void UpdateFilterMetadata()
 	{
-		InputModel.LogSources = InputModel.LogEntries?
+		InputModel.LogSources = InputModel.LogEntries
 			.Where(x => string.IsNullOrWhiteSpace(x.Source) == false)
-			.Select(x => x.Source!).Distinct().ToList() ?? [];
+			.Select(x => x.Source!).Distinct().ToList();
 
 		ViewModel.Start = InputModel.LogEntries.MinOrDefault(x => x.Timestamp);
-        ViewModel.End = InputModel.LogEntries.MaxOrDefault(x => x.Timestamp);
-		ViewModel.SelectedLogLevels = InputModel.LogEntries?.Select(x => x.Severity).Distinct().ToList() ?? [LogLevel.None];
+		ViewModel.End = InputModel.LogEntries.MaxOrDefault(x => x.Timestamp);
+		ViewModel.SelectedLogLevels = InputModel.LogEntries.Select(x => x.Severity).Distinct().ToList();
 	}
 
-	private List<ILoggerEntry> GetDisplayLogEntries()
+    /// <summary>
+    /// Applies the current filter settings to the loaded log entries and returns the resulting list of entries to display.
+    /// </summary>
+    /// <returns>A list of log entries that match the current filter settings.</returns>
+    private List<ILoggerEntry> GetDisplayLogEntries()
 	{
-        if (InputModel.LogEntries == null)
+        if (InputModel.LogEntries.Count == 0)
 			return [];
 
 		var predicate = PredicateBuilder.Create<ILoggerEntry>();
@@ -190,12 +207,31 @@ public partial class Index : ComponentBase
             return "arrow_downward";
     }
 
+	/// <summary>
+	/// Specifies how new log entries should be saved when adding files or parsing log data.
+	/// </summary>
+	public enum ImportMode
+	{
+        /// <summary>
+        /// Adds new log entries to the existing ones without clearing.
+        /// </summary>
+		Append,
+        /// <summary>
+        /// Clears existing log entries before adding new ones.
+        /// </summary>
+		Reset
+	}
+
     private class DataModel
 	{
 		[Display(Name = "Log File Data", Description = "Contains the JSON from the last log file read in the file picker")]
 		public string? LogFileData { get; set; }
 
-		public List<ILoggerEntry>? LogEntries { get; set; }
+		public List<ILoggerEntry> LogEntries { get; set; } = [];
+
+		[Display(Name = "Log Import Mode", Description = "Reset clears existing log entries before adding new ones. Append adds to existing entries.")]
+		public ImportMode LogImportMode { get; set; } = ImportMode.Append; // Default to Append mode
+
 		public List<string> LogSources { get; set; } = [];
 	}
 

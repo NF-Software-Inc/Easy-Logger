@@ -89,6 +89,16 @@
 								<span class="material-icons icon is-left">file_upload</span>
 							</div>
 						</div>
+
+						<div class="field">
+							<label class="label">Log Import Mode:</label>
+								<div class="control">
+									<InputRadioGroup @bind-Value="InputModel.LogImportMode">
+										<InputRadio Value="ImportMode.Append" /> Append
+										<InputRadio Value="ImportMode.Reset" /> Reset
+									</InputRadioGroup>
+								</div>
+							</div>
 					</div>
 
 					<div class="column">
