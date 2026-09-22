@@ -4,14 +4,19 @@ using Easy_Logger.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 using System.Text.Json;
 
 namespace Easy_Logger_Parser.Pages;
 
 public partial class Index : ComponentBase
 {
-	private readonly DataModel InputModel = new();
+    [Inject]
+    private IJSRuntime JSRuntime { get; init; } = default!;
+
+    private readonly DataModel InputModel = new();
 	private readonly FilterModel ViewModel = new();
 
 	private readonly TooltipOptions TooltipMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
@@ -180,6 +185,32 @@ public partial class Index : ComponentBase
 		else
 			return InputModel.LogEntries.Where(predicate.Compile()).AsQueryable().OrderByDescending(property).ToList();
 	}
+
+    /// <summary>
+	/// Error message that occurs during the export process.
+	/// </summary>
+    private string? ExportErrorMessage { get; set; }
+
+    /// <summary>
+    /// Exports the currently filtered log entries displayed in the table to a JSON file.
+    /// </summary>
+    private async Task ExportFilteredEntries()
+    {
+		ExportErrorMessage = null;
+
+        try
+        {
+            var fileName = $"logs_{DateTime.Now:yyyyMMdd_HHmm}.json";
+            var json = JsonSerializer.Serialize(GetDisplayLogEntries(), new JsonSerializerOptions() { WriteIndented = true });
+            var url = $"data:application/json;base64,{Convert.ToBase64String(Encoding.UTF8.GetBytes(json))}";
+
+            await JSRuntime.DownloadFile(fileName, url);
+        }
+        catch (Exception)
+        {
+            ExportErrorMessage = "Exporting is not supported on this device.";
+        }
+    }
 
     private string GetTableHeaderCssClass(string css, string column)
 	{
