@@ -91,10 +91,26 @@
                             </div>
                         </div>
 
-                        <div class="field">
-                            <label class="label">Log Import Mode:</label>
-                            <div class="control">
-                                <InputRadioGroupObject @bind-Value="InputModel.LogImportMode" DisplayValue="x => x.GetValueDisplayName()" RadioOptions="Enum.GetValues<ImportMode>().ToList()" />
+                        <div class="columns is-variable is-1">
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">Log Import Mode:</label>
+                                    <div class="control">
+                                        <InputRadioGroupObject @bind-Value="InputModel.LogImportMode" DisplayValue="x => x.GetValueDisplayName()" RadioOptions="Enum.GetValues<ImportMode>().ToList()" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">Download Log File:</label>
+                                    <div class="control">
+                                        <button type="button" class="button is-link is-fullwidth" disabled="@(InputModel.LogEntries.Count == 0)" @onclick="ExportFilteredEntries">
+                                            <span class="material-icons icon">file_download</span>
+                                            <span>Export</span>
+                                        </button>
+                                    </div>
+                                    <div class="help is-danger">@ExportErrorMessage</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -115,48 +131,48 @@
             </EditForm>
         </div>
 
-        <table class="table is-striped is-fullwidth is-hoverable is-size-6">
-            <thead class="is-whitespace-nowrap">
-                <tr class="is-sticky is-sticky-top has-background-default">
-                    <th class='@GetTableHeaderCssClass("is-1", nameof(ILoggerEntry.Timestamp))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Timestamp))'>
-                        <span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Timestamp))</span>
-                        <span>Timestamp</span>
-                    </th>
-                    <th class='@GetTableHeaderCssClass("is-2", nameof(ILoggerEntry.Source))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Source))'>
-                        <span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Source))</span>
-                        <span>Source</span>
-                    </th>
-                    <th class='@GetTableHeaderCssClass("is-1", nameof(ILoggerEntry.Severity))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Severity))'>
-                        <span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Severity))</span>
-                        <span>Level</span>
-                    </th>
-                    <th class="is-1">Event Id</th>
-                    <th class="is-1">Event Name</th>
-                    <th class='@GetTableHeaderCssClass("is-6", nameof(ILoggerEntry.Message))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Message))'>
-                        <span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Message))</span>
-                        <span>Message</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="is-whitespace-nowrap">
-                <Virtualize Items="GetDisplayLogEntries()" Context="entry" ItemSize="41">
-                    <ItemContent>
-                        <tr>
-                            <td>@entry.Timestamp.ToString("G")</td>
-                            <td>@entry.Source</td>
-                            <td>@entry.Severity</td>
-                            <td>@entry.Id?.Id</td>
-                            <td>@entry.Id?.Name</td>
-                            <td>@entry.Message</td>
-                        </tr>
-                    </ItemContent>
-                    <Placeholder>
-                        <tr>
-                            <td colspan="6">&hellip;</td>
-                        </tr>
-                    </Placeholder>
-                </Virtualize>
-            </tbody>
-        </table>
-    </div>
+		<table class="table is-striped is-fullwidth is-hoverable is-size-6">
+			<thead class="is-whitespace-nowrap">
+				<tr class="is-sticky is-sticky-top has-background-default">
+					<th class='@GetTableHeaderCssClass("is-1", nameof(ILoggerEntry.Timestamp))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Timestamp))'>
+						<span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Timestamp))</span>
+						<span>Timestamp</span>
+					</th>
+					<th class='@GetTableHeaderCssClass("is-2", nameof(ILoggerEntry.Source))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Source))'>
+						<span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Source))</span>
+						<span>Source</span>
+					</th>
+					<th class='@GetTableHeaderCssClass("is-1", nameof(ILoggerEntry.Severity))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Severity))'>
+						<span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Severity))</span>
+						<span>Level</span>
+					</th>
+					<th class="is-1">Event Id</th>
+					<th class="is-1">Event Name</th>
+					<th class='@GetTableHeaderCssClass("is-6", nameof(ILoggerEntry.Message))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Message))'>
+						<span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Message))</span>
+						<span>Message</span>
+					</th>
+				</tr>
+			</thead>
+			<tbody class="is-whitespace-nowrap">
+				<Virtualize Items="GetDisplayLogEntries()" Context="entry" ItemSize="41">
+					<ItemContent>
+						<tr>
+							<td>@entry.Timestamp.ToString("G")</td>
+							<td>@entry.Source</td>
+							<td>@entry.Severity</td>
+							<td>@entry.Id?.Id</td>
+							<td>@entry.Id?.Name</td>
+							<td>@entry.Message</td>
+						</tr>
+					</ItemContent>
+					<Placeholder>
+						<tr>
+							<td colspan="6">&hellip;</td>
+						</tr>
+					</Placeholder>
+				</Virtualize>
+			</tbody>
+		</table>
+	</div>
 </div>
