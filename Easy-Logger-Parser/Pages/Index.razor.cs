@@ -20,6 +20,12 @@ public partial class Index : ComponentBase
 	private readonly FilterModel ViewModel = new();
 
 	private readonly TooltipOptions TooltipMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+	private readonly JsonSerializerOptions SerializerOptions = new() { WriteIndented = true };
+
+	/// <summary>
+	/// Error message that occurs during the export process.
+	/// </summary>
+	private string? ExportErrorMessage { get; set; }
 
 	private string? GetFileTypes()
 	{
@@ -173,11 +179,6 @@ public partial class Index : ComponentBase
 	}
 
     /// <summary>
-	/// Error message that occurs during the export process.
-	/// </summary>
-    private string? ExportErrorMessage { get; set; }
-
-    /// <summary>
     /// Exports the currently filtered log entries displayed in the table to a JSON file.
     /// </summary>
     private async Task ExportFilteredEntries()
@@ -186,15 +187,16 @@ public partial class Index : ComponentBase
 
         try
         {
-            var fileName = $"logs_{DateTime.Now:yyyyMMdd_HHmm}.json";
-            var json = JsonSerializer.Serialize(GetDisplayLogEntries(), new JsonSerializerOptions() { WriteIndented = true });
-            var url = $"data:application/json;base64,{Convert.ToBase64String(Encoding.UTF8.GetBytes(json))}";
+			var fileName = $"{DateTime.Now:yyyyMMdd_HHmm}_log_export.json";
+			var bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(GetDisplayLogEntries(), SerializerOptions));
+			using var stream = new MemoryStream(bytes);
+			using var reference = new DotNetStreamReference(stream);
 
-            await JSRuntime.DownloadFile(fileName, url);
-        }
+			await JSRuntime.DownloadFile(fileName, reference);
+		}
         catch (Exception)
         {
-            ExportErrorMessage = "Exporting is not supported on this device.";
+            ExportErrorMessage = "Exporting failed and may not be supported on this device.";
         }
     }
 

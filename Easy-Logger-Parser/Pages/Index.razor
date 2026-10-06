@@ -91,10 +91,26 @@
                             </div>
                         </div>
 
-                        <div class="field">
-                            <label class="label">Log Import Mode:</label>
-                            <div class="control">
-                                <InputRadioGroupObject @bind-Value="InputModel.LogImportMode" DisplayValue="x => x.GetValueDisplayName()" RadioOptions="Enum.GetValues<ImportMode>().ToList()" />
+                        <div class="columns is-variable is-1">
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">Log Import Mode:</label>
+                                    <div class="control">
+                                        <InputRadioGroupObject @bind-Value="InputModel.LogImportMode" DisplayValue="x => x.GetValueDisplayName()" RadioOptions="Enum.GetValues<ImportMode>().ToList()" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">Download Log File:</label>
+                                    <div class="control">
+                                        <button type="button" class="button is-link is-fullwidth" disabled="@(InputModel.LogEntries.Count == 0)" @onclick="ExportFilteredEntries">
+                                            <span class="material-icons icon">file_download</span>
+                                            <span>Export</span>
+                                        </button>
+                                    </div>
+                                    <div class="help is-danger">@ExportErrorMessage</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -158,15 +174,5 @@
 				</Virtualize>
 			</tbody>
 		</table>
-
-		<div class="field">
-			<div class="control">
-				<button type="button" class="button is-link" disabled="@(GetDisplayLogEntries().Count == 0)" @onclick="ExportFilteredEntries">
-					<span class="material-icons icon">file_download</span>
-					<span>Export</span>
-				</button>
-			</div>
-			<div class="help is-danger">@ExportErrorMessage</div>
-		</div>
 	</div>
 </div>
