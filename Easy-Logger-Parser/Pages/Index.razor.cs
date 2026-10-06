@@ -27,7 +27,7 @@ public partial class Index : ComponentBase
 	/// <summary>
     /// The maximum number of files that can be selected and processed at once.
     /// </summary>
-    private const int MaxFiles = 25;
+    private const int MaxFiles = 250;
 
 	/// <summary>
 	/// Reads and parses all files selected by the user, merging their log entries into a single combined list.
@@ -43,7 +43,7 @@ public partial class Index : ComponentBase
 		if (InputModel.LogImportMode == ImportMode.Reset)
 			InputModel.LogEntries.Clear();
 
-		string? lastFileData = null;
+		string? finalFileData = null;
 
 		foreach (var file in files)
 		{
@@ -52,15 +52,15 @@ public partial class Index : ComponentBase
 
 			await using var stream = file.OpenReadStream(max);
 			using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
-			lastFileData = await reader.ReadToEndAsync();
+			finalFileData = await reader.ReadToEndAsync();
 
 			// Parse the file contents and merge any resulting entries into the combined list
-			if (TryParseLogFileData(lastFileData, out var entries) && entries != null)
+			if (TryParseLogFileData(finalFileData, out var entries) && entries != null)
 				InputModel.LogEntries.AddRange(entries);
 		}
 
 		// Display the last selected file's raw contents
-		InputModel.LogFileData = lastFileData;
+		InputModel.LogFileData = finalFileData;
 		UpdateFilterMetadata();
 	}
 
@@ -86,43 +86,25 @@ public partial class Index : ComponentBase
 	/// </summary>
 	/// <param name="data">The log file data to parse</param>
 	/// <param name="entries">The parsed log entries if successful; otherwise, null.</param>
-	/// <returns>True if data was successfully parsed; otherwise, false.</returns>
-	private static bool TryParseLogFileData(string data, out List<ILoggerEntry>? entries)
+	/// <param name="retry">Indicates whether to retry parsing with the data wrapped in an array if the initial attempt fails.</param>
+	private static bool TryParseLogFileData(string data, out List<ILoggerEntry>? entries, bool retry = true)
 	{
 		try
 		{
 			entries = JsonSerializer.Deserialize<IEnumerable<LoggerEntryDeserializer>>(data)?.Cast<ILoggerEntry>().ToList();
 			return entries != null;
 		}
-		catch (JsonException)
+		catch (JsonException) when (retry)
 		{
-			// Attempt single retry: wrap non-array JSON in brackets
 			var trimmed = data.Trim().TrimEnd(['\r', '\n']).TrimEnd(',');
 
 			if (trimmed.StartsWith('[') == false && trimmed.EndsWith(']') == false)
-			{
-				try
-				{
-					entries = JsonSerializer.Deserialize<IEnumerable<LoggerEntryDeserializer>>($"[{trimmed}]")?.Cast<ILoggerEntry>().ToList();
-					return entries != null;
-				}
-				catch
-				{
-					entries = null;
-					return false;
-				}
-			}
-			else
-			{
-				entries = null;
-				return false;
-			}
+				return TryParseLogFileData($"[{trimmed}]", out entries, false);
 		}
-		catch
-		{
-			entries = null;
-			return false;
-		}
+		catch { }
+
+		entries = null;
+		return false;
 	}
 
 	/// <summary>
@@ -132,11 +114,15 @@ public partial class Index : ComponentBase
 	{
 		InputModel.LogSources = InputModel.LogEntries
 			.Where(x => string.IsNullOrWhiteSpace(x.Source) == false)
-			.Select(x => x.Source!).Distinct().ToList();
+			.Select(x => x.Source!)
+			.Distinct()
+			.ToList();
 
 		ViewModel.Start = InputModel.LogEntries.MinOrDefault(x => x.Timestamp);
 		ViewModel.End = InputModel.LogEntries.MaxOrDefault(x => x.Timestamp);
-		ViewModel.SelectedLogLevels = InputModel.LogEntries.Select(x => x.Severity).Distinct().ToList();
+		ViewModel.SelectedLogLevels = InputModel.LogEntries.Select(x => x.Severity)
+			.Distinct()
+			.ToList();
 	}
 
     /// <summary>
@@ -212,25 +198,28 @@ public partial class Index : ComponentBase
 	/// </summary>
 	public enum ImportMode
 	{
-        /// <summary>
-        /// Adds new log entries to the existing ones without clearing.
-        /// </summary>
+		/// <summary>
+		/// Adds new log entries to the existing ones without clearing.
+		/// </summary>
+		[Display(Name = "Append")]
 		Append,
-        /// <summary>
-        /// Clears existing log entries before adding new ones.
-        /// </summary>
+
+		/// <summary>
+		/// Clears existing log entries before adding new ones.
+		/// </summary>
+		[Display(Name = "Reset")]
 		Reset
 	}
 
     private class DataModel
 	{
-		[Display(Name = "Log File Data", Description = "Contains the JSON from the last log file read in the file picker")]
+		[Display(Name = "Log File Data", Description = "Contains the user supplied JSON or JSON from the final log file read in the file picker")]
 		public string? LogFileData { get; set; }
 
-		public List<ILoggerEntry> LogEntries { get; set; } = [];
+		public List<ILoggerEntry> LogEntries { get; } = [];
 
 		[Display(Name = "Log Import Mode", Description = "Reset clears existing log entries before adding new ones. Append adds to existing entries.")]
-		public ImportMode LogImportMode { get; set; } = ImportMode.Append; // Default to Append mode
+		public ImportMode LogImportMode { get; set; }
 
 		public List<string> LogSources { get; set; } = [];
 	}
