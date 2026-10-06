@@ -1,162 +1,162 @@
 ﻿@using Easy_Logger.Interfaces
+@using Microsoft.Extensions.Logging
+@using easy_core
 
 @page "/"
 @inherits ComponentBase
 
 <div class="columns is-variable is-1 px-1">
-	<div class="column is-4-tablet is-3-desktop is-3-widescreen is-2-fullhd">
-		<div class="is-sticky is-sticky-top">
-			<EditForm Model="ViewModel">
-				<div class="field">
-					<Label For="() => ViewModel.Start" TooltipMode="TooltipMode" />
-					<div class="control has-icons-left has-icons-right">
-						<InputDateTime @bind-Value=ViewModel.Start />
-						<div class="help is-danger">
-							<ValidationMessage For="() => ViewModel.Start" />
-						</div>
-					</div>
-				</div>
+    <div class="column is-4-tablet is-3-desktop is-3-widescreen is-2-fullhd">
+        <div class="is-sticky is-sticky-top">
+            <EditForm Model="ViewModel">
+                <div class="field">
+                    <Label For="() => ViewModel.Start" TooltipMode="TooltipMode" />
+                    <div class="control has-icons-left has-icons-right">
+                        <InputDateTime @bind-Value=ViewModel.Start />
+                        <div class="help is-danger">
+                            <ValidationMessage For="() => ViewModel.Start" />
+                        </div>
+                    </div>
+                </div>
 
-				<div class="field">
-					<Label For="() => ViewModel.End" TooltipMode="TooltipMode" />
-					<div class="control has-icons-left has-icons-right">
-						<InputDateTime @bind-Value=ViewModel.End />
-						<div class="help is-danger">
-							<ValidationMessage For="() => ViewModel.End" />
-						</div>
-					</div>
-				</div>
+                <div class="field">
+                    <Label For="() => ViewModel.End" TooltipMode="TooltipMode" />
+                    <div class="control has-icons-left has-icons-right">
+                        <InputDateTime @bind-Value=ViewModel.End />
+                        <div class="help is-danger">
+                            <ValidationMessage For="() => ViewModel.End" />
+                        </div>
+                    </div>
+                </div>
 
-				<div class="field">
-					<Label For="() => ViewModel.EventNumber" TooltipMode="TooltipMode" />
-					<div class="control has-icons-left">
-						<InputNumber class="input" @bind-Value=ViewModel.EventNumber />
-						<span class="material-icons icon is-left">numbers</span>
-						<div class="help is-danger">
-							<ValidationMessage For="() => ViewModel.EventNumber" />
-						</div>
-					</div>
-				</div>
+                <div class="field">
+                    <Label For="() => ViewModel.EventNumber" TooltipMode="TooltipMode" />
+                    <div class="control has-icons-left">
+                        <InputNumber class="input" @bind-Value=ViewModel.EventNumber />
+                        <span class="material-icons icon is-left">numbers</span>
+                        <div class="help is-danger">
+                            <ValidationMessage For="() => ViewModel.EventNumber" />
+                        </div>
+                    </div>
+                </div>
 
-				<div class="field">
-					<Label For="() => ViewModel.EventName" TooltipMode="TooltipMode" />
-					<div class="control has-icons-left">
-						<InputText class="input" @bind-Value=ViewModel.EventName />
-						<span class="material-icons icon is-left">title</span>
-						<div class="help is-danger">
-							<ValidationMessage For="() => ViewModel.EventName" />
-						</div>
-					</div>
-				</div>
+                <div class="field">
+                    <Label For="() => ViewModel.EventName" TooltipMode="TooltipMode" />
+                    <div class="control has-icons-left">
+                        <InputText class="input" @bind-Value=ViewModel.EventName />
+                        <span class="material-icons icon is-left">title</span>
+                        <div class="help is-danger">
+                            <ValidationMessage For="() => ViewModel.EventName" />
+                        </div>
+                    </div>
+                </div>
 
-				<div class="field">
-					<Label For="() => ViewModel.SearchMessage" TooltipMode="TooltipMode" />
-					<div class="control has-icons-left">
-						<InputText class="input" @bind-Value=ViewModel.SearchMessage />
-						<span class="material-icons icon is-left">search</span>
-						<div class="help is-danger">
-							<ValidationMessage For="() => ViewModel.SearchMessage" />
-						</div>
-					</div>
-				</div>
+                <div class="field">
+                    <Label For="() => ViewModel.SearchMessage" TooltipMode="TooltipMode" />
+                    <div class="control has-icons-left">
+                        <InputText class="input" @bind-Value=ViewModel.SearchMessage />
+                        <span class="material-icons icon is-left">search</span>
+                        <div class="help is-danger">
+                            <ValidationMessage For="() => ViewModel.SearchMessage" />
+                        </div>
+                    </div>
+                </div>
 
-				<div class="field">
-					<Label For="() => ViewModel.Source" TooltipMode="TooltipMode" />
-					<div class="control has-icons-left is-expanded">
-						<div class="select is-fullwidth">
-							<InputSelect @bind-Value="ViewModel.Source">
-								<option value="">Any</option>
-								@foreach (var source in InputModel.LogSources)
-								{
-									<option value="@source">@source</option>
-								}
-							</InputSelect>
-						</div>
-						<span class="material-icons icon is-left">list</span>
-					</div>
-				</div>
+                <div class="field">
+                    <Label For="() => ViewModel.SelectedSources" TooltipMode="TooltipMode" />
+                    <div class="control is-expanded">
+                        <InputSelectMultipleObject class="is-fullwidth" @bind-Value="ViewModel.SelectedSources" DisplayValue='x => x' Items="InputModel.LogSources" ShowGroupButtons=true Contains="(x, y) => x != null && x.Contains(y)" Size="@(Math.Clamp(InputModel.LogSources.Count, 2, 8))" />
+                    </div>
+                </div>
 
-				<div class="field">
-					<Label For="() => ViewModel.SelectedLogLevels" TooltipMode="TooltipMode" />
-					<div class="control">
-						<InputFlaggedEnum label-class="pr-2" IsBoxed=false @bind-Value="ViewModel.SelectedLogLevels" />
-					</div>
-				</div>
-			</EditForm>
-		</div>
-	</div>
-	<div class="column is-8-tablet is-9-desktop is-9-widescreen is-10-fullhd is-overflow-x" style="height: calc(100vh - 52px)">
-		<div class="is-sticky is-sticky-left">
-			<EditForm Model="InputModel">
-				<div class="columns">
-					<div class="column">
-						<div class="field">
-							<label class="label">Upload Log File</label>
-							<div class="control has-icons-left">
-								<InputFile class="input" OnChange="AddFile" accept="@GetFileTypes()" />
-								<span class="material-icons icon is-left">file_upload</span>
-							</div>
-						</div>
-					</div>
+                <div class="field">
+                    <Label For="() => ViewModel.SelectedLogLevels" TooltipMode="TooltipMode" />
+                    <div class="control is-expanded">
+                        <InputSelectMultipleObject class="is-fullwidth" @bind-Value="ViewModel.SelectedLogLevels" DisplayValue='x => x.ToString()' Items="Enum.GetValues<LogLevel>().ToList()" ShowGroupButtons=true Contains="(x, y) => x != null && x.Contains(y)" Size="7" />
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+    <div class="column is-8-tablet is-9-desktop is-9-widescreen is-10-fullhd is-overflow-x" style="height: calc(100vh - 52px)">
+        <div class="is-sticky is-sticky-left">
+            <EditForm Model="InputModel">
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label">Upload Log File</label>
+                            <div class="control has-icons-left">
+                                <InputFile class="input" OnChange="AddFile" accept="@GetFileTypes()" multiple />
+                                <span class="material-icons icon is-left">file_upload</span>
+                            </div>
+                        </div>
 
-					<div class="column">
-						<div class="field">
-							<Label For="() => InputModel.LogFileData" TooltipMode="TooltipMode" />
-							<div class="control has-icons-left">
-								<InputTextArea class="input" @bind-Value="InputModel.LogFileData" @oninput='OnLogFileDataChanged' autocomplete="off" rows="6" />
-								<span class="material-icons icon is-left">description</span>
-								<div class="help is-danger">
-									<ValidationMessage For="() => InputModel.LogFileData" />
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</EditForm>
-		</div>
+                        <div class="field">
+                            <label class="label">Log Import Mode:</label>
+                            <div class="control">
+                                <InputRadioGroupObject @bind-Value="InputModel.LogImportMode" DisplayValue="x => x.GetValueDisplayName()" RadioOptions="Enum.GetValues<ImportMode>().ToList()" />
+                            </div>
+                        </div>
+                    </div>
 
-		<table class="table is-striped is-fullwidth is-hoverable is-size-6">
-			<thead class="is-whitespace-nowrap">
-				<tr class="is-sticky is-sticky-top has-background-default">
-					<th class='@GetTableHeaderCssClass("is-1", nameof(ILoggerEntry.Timestamp))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Timestamp))'>
-						<span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Timestamp))</span>
-						<span>Timestamp</span>
-					</th>
-					<th class='@GetTableHeaderCssClass("is-2", nameof(ILoggerEntry.Source))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Source))'>
-						<span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Source))</span>
-						<span>Source</span>
-					</th>
-					<th class='@GetTableHeaderCssClass("is-1", nameof(ILoggerEntry.Severity))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Severity))'>
-						<span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Severity))</span>
-						<span>Level</span>
-					</th>
-					<th class="is-1">Event Id</th>
-					<th class="is-1">Event Name</th>
-					<th class='@GetTableHeaderCssClass("is-6", nameof(ILoggerEntry.Message))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Message))'>
-						<span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Message))</span>
-						<span>Message</span>
-					</th>
-				</tr>
-			</thead>
-			<tbody class="is-whitespace-nowrap">
-				<Virtualize Items="GetDisplayLogEntries()" Context="entry" ItemSize="41">
-					<ItemContent>
-						<tr>
-							<td>@entry.Timestamp.ToString("G")</td>
-							<td>@entry.Source</td>
-							<td>@entry.Severity</td>
-							<td>@entry.Id?.Id</td>
-							<td>@entry.Id?.Name</td>
-							<td>@entry.Message</td>
-						</tr>
-					</ItemContent>
-					<Placeholder>
-						<tr>
-							<td colspan="6">&hellip;</td>
-						</tr>
-					</Placeholder>
-				</Virtualize>
-			</tbody>
-		</table>
-	</div>
+                    <div class="column">
+                        <div class="field">
+                            <Label For="() => InputModel.LogFileData" TooltipMode="TooltipMode" />
+                            <div class="control has-icons-left">
+                                <InputTextArea class="input" @bind-Value="InputModel.LogFileData" @bind-Value:after="OnLogFileDataChanged" autocomplete="off" rows="6" />
+                                <span class="material-icons icon is-left">description</span>
+                                <div class="help is-danger">
+                                    <ValidationMessage For="() => InputModel.LogFileData" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+
+        <table class="table is-striped is-fullwidth is-hoverable is-size-6">
+            <thead class="is-whitespace-nowrap">
+                <tr class="is-sticky is-sticky-top has-background-default">
+                    <th class='@GetTableHeaderCssClass("is-1", nameof(ILoggerEntry.Timestamp))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Timestamp))'>
+                        <span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Timestamp))</span>
+                        <span>Timestamp</span>
+                    </th>
+                    <th class='@GetTableHeaderCssClass("is-2", nameof(ILoggerEntry.Source))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Source))'>
+                        <span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Source))</span>
+                        <span>Source</span>
+                    </th>
+                    <th class='@GetTableHeaderCssClass("is-1", nameof(ILoggerEntry.Severity))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Severity))'>
+                        <span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Severity))</span>
+                        <span>Level</span>
+                    </th>
+                    <th class="is-1">Event Id</th>
+                    <th class="is-1">Event Name</th>
+                    <th class='@GetTableHeaderCssClass("is-6", nameof(ILoggerEntry.Message))' @onclick='() => UpdateSortValues(nameof(ILoggerEntry.Message))'>
+                        <span class="material-icons icon">@GetSortArrow(nameof(ILoggerEntry.Message))</span>
+                        <span>Message</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="is-whitespace-nowrap">
+                <Virtualize Items="GetDisplayLogEntries()" Context="entry" ItemSize="41">
+                    <ItemContent>
+                        <tr>
+                            <td>@entry.Timestamp.ToString("G")</td>
+                            <td>@entry.Source</td>
+                            <td>@entry.Severity</td>
+                            <td>@entry.Id?.Id</td>
+                            <td>@entry.Id?.Name</td>
+                            <td>@entry.Message</td>
+                        </tr>
+                    </ItemContent>
+                    <Placeholder>
+                        <tr>
+                            <td colspan="6">&hellip;</td>
+                        </tr>
+                    </Placeholder>
+                </Virtualize>
+            </tbody>
+        </table>
+    </div>
 </div>
