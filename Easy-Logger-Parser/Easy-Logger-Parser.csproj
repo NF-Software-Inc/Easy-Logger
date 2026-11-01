@@ -16,7 +16,7 @@
 		<AssemblyVersion>2.2.4.0</AssemblyVersion>
 		<FileVersion>2.2.4.0</FileVersion>
 		<Version>2.2.4</Version>
-		<MauiVersion>10.0.110</MauiVersion>
+		<MauiVersion>10.0.120</MauiVersion>
 
 		<!-- Display name -->
 		<ApplicationTitle>Easy Logger Parser</ApplicationTitle>
